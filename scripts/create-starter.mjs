@@ -38,9 +38,11 @@ for (const relativePath of [
   });
 }
 
-mkdirSync(path.join(outputRoot, "evals"), { recursive: true });
-cpSync(path.join(repoRoot, "evals/README.md"), path.join(outputRoot, "evals/README.md"));
-cpSync(path.join(repoRoot, "evals/fixtures"), path.join(outputRoot, "evals/fixtures"), {
+mkdirSync(path.join(outputRoot, "tests"), { recursive: true });
+const fixtureSource = existsSync(path.join(repoRoot, "tests/fixtures"))
+  ? path.join(repoRoot, "tests/fixtures")
+  : path.join(repoRoot, "evals/fixtures");
+cpSync(fixtureSource, path.join(outputRoot, "tests/fixtures"), {
   recursive: true,
 });
 

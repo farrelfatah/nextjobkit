@@ -1,12 +1,14 @@
 #!/usr/bin/env node
-import { cpSync, mkdtempSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWorkspaceConfig } from "../export/workspace-config.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const fixtureRoot = path.join(repoRoot, "evals/fixtures/product-designer/workspace");
+const publicFixtureRoot = path.join(repoRoot, "tests/fixtures/product-designer/workspace");
+const privateFixtureRoot = path.join(repoRoot, "evals/fixtures/product-designer/workspace");
+const fixtureRoot = existsSync(publicFixtureRoot) ? publicFixtureRoot : privateFixtureRoot;
 const runtimeRoot = mkdtempSync(path.join(tmpdir(), "next-job-kit-fixture-"));
 
 try {

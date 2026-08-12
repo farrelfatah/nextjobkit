@@ -106,7 +106,7 @@ applications/[candidate-slug]-[company]-[role-type]-interview-prep-[yyyymmdd].md
 
 Keep exported HTML and PDF next to their matching Markdown source. Archive submitted artifacts instead of overwriting or deleting them.
 
-The application tracker records opportunity state and sent artifacts. It is not a skill-quality log. Maintainer evaluation belongs under `evals/` and must remain optional for end users.
+The application tracker records opportunity state and sent artifacts. Do not add a skill-usage log to the candidate workflow or public starter. Automated synthetic regression fixtures belong under `tests/fixtures/`.
 
 ## Resume Content
 

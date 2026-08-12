@@ -38,4 +38,4 @@ Seven first-party skills live under `.agents/skills/`:
 
 Read `AGENTS.md` for the evidence, artifact, safety, export, and validation contract.
 
-The application tracker records opportunity state. Optional skill-quality evaluation belongs under `evals/`; the two logs serve different purposes and should not be combined.
+The application tracker records opportunity state. The public workflow does not include a skill-usage log; automated synthetic regression fixtures live under `tests/fixtures/`.
