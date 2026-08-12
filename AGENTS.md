@@ -155,21 +155,29 @@ The exporter prefers Playwright Chrome Headless Shell, uses an isolated temporar
 
 Before calling a PDF final:
 
-1. Run repository validation.
+1. Run `npm run doctor` and the relevant PDF validation.
 2. Confirm Chrome/Skia, A4 sizing, no more than two pages, extractable text, and expected sections.
 3. Render every page to an image and inspect it.
 4. Reject clipping, overlap, unreadable glyphs, orphaned headings, awkward block splits, and accidental blank pages.
 5. Fix recurring pagination in shared template CSS only when a deliberate template change has been approved. Fix role-specific length in the Markdown.
 
-## Validation
+## Runtime Diagnostics
 
 ```sh
-npm test
+npm run doctor
 npm run export:resume -- <resume-markdown-path> --pdf
 npm run validate:pdf -- <resume-pdf-path>
 ```
 
-`npm test` validates the workspace contract, agent compatibility links, seven first-party skills, and the locked template files without external packages.
+Users are not expected to run repository tests routinely. `npm run doctor` is an optional clone, update, and troubleshooting check for workspace configuration and agent compatibility.
+
+## Maintainer Validation
+
+```sh
+npm test
+```
+
+`npm test` is a contributor and CI gate. It validates runtime diagnostics, seven first-party skills, locked template files, and synthetic regression fixtures without external packages.
 
 ## Agent Compatibility
 

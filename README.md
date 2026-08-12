@@ -6,10 +6,9 @@ An evidence-first agentic workflow for tailored resumes, cover letters, applicat
 
 1. Edit `profile/candidate.md`—the only workflow configuration interface.
 2. Replace the placeholder master resume and evidence content.
-3. Run validation.
+3. Ask your agent to analyze a job, tailor the resume, or prepare an application package.
 
 ```sh
-npm test
 npm run preview:resume
 npm run export:resume -- --pdf
 ```
@@ -47,6 +46,16 @@ CLAUDE.md -> AGENTS.md
 .claude/skills -> ../.agents/skills
 ```
 
-Do not edit through the Claude paths. On Windows, enable Developer Mode and Git symbolic-link support before cloning. `npm test` fails when either link is missing, copied, or broken.
+Do not edit through the Claude paths. On Windows, enable Developer Mode and Git symbolic-link support before cloning.
+
+## Troubleshooting
+
+Most users never need to run repository tests. After cloning or updating, use this only when configuration paths or agent discovery appear broken:
+
+```sh
+npm run doctor
+```
+
+Contributors should run `npm test` before publishing changes. It checks skill metadata, template integrity, and synthetic regression fixtures in addition to the runtime diagnostics.
 
 The application tracker records opportunity state. The public workflow does not include a skill-usage log; automated synthetic regression fixtures live under `tests/fixtures/`.
