@@ -1,0 +1,326 @@
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --primary: oklch(0.5 0.134 242.749);
+    --secondary: oklch(0.967 0.001 286.375);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --border: oklch(0.922 0 0);
+    --font-sans: "Geist", "Geist Sans", "Aptos", "Segoe UI", Arial, sans-serif;
+}
+
+@page {
+    size: A4;
+    margin: 12mm 14mm 13mm;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: var(--muted);
+}
+
+body {
+    /* Default resume text. */
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 9pt;
+    line-height: 1.2;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+.resume-page {
+    max-width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 0;
+}
+
+main {
+    max-width: 182mm;
+    margin: 0 auto;
+    padding: 12mm 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul {
+    margin-block-start: 0;
+}
+
+h1 {
+    /* Candidate name. */
+    margin-bottom: 2mm;
+    color: var(--foreground);
+    font-size: 18pt;
+    font-weight: 550;
+    line-height: 1;
+}
+
+h1 + p {
+    /* Headline/title under name. */
+    margin-bottom: 1.5mm;
+    color: var(--primary);
+    font-size: 9pt;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+h1 + p + p {
+    /* Contact line. */
+    margin-bottom: 4mm;
+    color: var(--muted-foreground);
+    font-size: 9pt;
+    line-height: 1.2;
+}
+
+h2 {
+    /* Section labels: Summary, Experience, etc. */
+    margin-bottom: 2mm;
+    padding-bottom: 1.15mm;
+    border-bottom: 0.3mm solid var(--border);
+    color: var(--primary);
+    font-size: 10pt;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+h3 {
+    /* Company/project/school names. */
+    margin-bottom: 0.75mm;
+    color: var(--foreground);
+    font-size: 10pt;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+h4 {
+    /* Role titles. */
+    margin-bottom: 0.75mm;
+    color: var(--foreground);
+    font-size: 9pt;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+p {
+    /* Normal paragraphs. */
+    margin-bottom: 2mm;
+}
+
+h3 + p,
+h4 + p {
+    /* Metadata lines: dates, location, links. */
+    margin-bottom: 1.5mm;
+    color: var(--muted-foreground);
+    font-size: 8.7pt;
+    line-height: 1.25;
+}
+
+ul {
+    /* Bullet list spacing. */
+    margin-bottom: 2.75mm;
+    padding-left: 4.2mm;
+}
+
+li {
+    /* Bullet text. */
+    margin-bottom: 0.75mm;
+    padding-left: 0.45mm;
+}
+
+li::marker {
+    color: var(--primary);
+    font-size: 0.78em;
+}
+
+a {
+    /* Links. */
+    color: inherit;
+    text-decoration-color: color-mix(
+        in oklch,
+        var(--primary) 55%,
+        var(--secondary)
+    );
+    text-decoration-thickness: 0.6pt;
+    text-underline-offset: 1.5pt;
+}
+
+strong {
+    /* Bold labels, especially Skills. */
+    font-weight: 600;
+}
+
+.section-experience {
+    --timeline-gutter: 4.6mm;
+    --timeline-line: 0.28mm;
+    --timeline-dot: 2.2mm;
+    --timeline-dot-border: 0.35mm;
+    --timeline-offset: 1.55mm;
+    --timeline-axis-x: calc(
+        ((var(--timeline-dot) + (var(--timeline-dot-border) * 2)) / 2)
+    );
+    --timeline-title-center: calc((9.2pt * 1.22) / 2);
+    --timeline-thumb-center-y: calc(2mm + var(--timeline-title-center));
+}
+
+.section-experience .timeline-item {
+    display: flow-root;
+    position: relative;
+    margin-left: var(--timeline-offset);
+    padding-top: 1.25mm;
+    padding-left: calc(var(--timeline-axis-x) + var(--timeline-gutter));
+}
+
+.section-experience .timeline-item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--timeline-axis-x);
+    width: var(--timeline-line);
+    background: var(--border);
+    transform: translateX(-50%);
+    z-index: 0;
+}
+
+.section-experience .timeline-item:first-of-type::after {
+    top: var(--timeline-thumb-center-y);
+}
+
+.section-experience .timeline-item:last-of-type::after {
+    bottom: calc(100% - var(--timeline-thumb-center-y));
+}
+
+.section-experience .timeline-item:last-of-type {
+    padding-bottom: 2mm;
+}
+
+.section-experience .timeline-item h4 {
+    position: relative;
+    margin-top: 0;
+}
+
+.section-experience .timeline-item h4::before {
+    content: "";
+    position: absolute;
+    left: calc(var(--timeline-gutter) * -1);
+    top: 50%;
+    width: var(--timeline-dot);
+    height: var(--timeline-dot);
+    border: var(--timeline-dot-border) solid var(--primary);
+    border-radius: 999px;
+    background: var(--background);
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.section-experience .timeline-item ul {
+    margin-bottom: 0;
+    padding-left: 4.2mm;
+}
+
+.section-skills p {
+    margin-bottom: 1.6mm;
+}
+
+.section-selected-projects h3 + p {
+    margin-bottom: 0.75mm;
+}
+
+.section-selected-projects .entry-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-selected-projects p:not(:first-child) {
+    margin-bottom: 2mm;
+}
+
+.section-selected-projects > .entry-block:last-of-type p:last-of-type,
+.section-summary p:last-of-type,
+.section-skills p:last-of-type,
+.section-education > .entry-block:last-of-type p:last-of-type {
+    margin-bottom: 3.5mm;
+}
+
+.entry-block {
+    display: flow-root;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+section > h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+.entry-block h3 + p {
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+.section-experience .entry-block:has(.timeline-item) {
+    break-inside: auto;
+    page-break-inside: auto;
+}
+
+.section-experience .timeline-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.section-experience h3,
+.section-experience h4,
+.section-selected-projects h3,
+.section-education h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+.section-selected-projects p,
+.section-education p {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+@media screen {
+    body {
+        padding: 24px;
+    }
+
+    .resume-page {
+        box-shadow: 0 18px 55px
+            color-mix(in oklch, var(--foreground), transparent 84%);
+    }
+}
+
+@media print {
+    html,
+    body {
+        background: var(--background);
+    }
+
+    body {
+        padding: 0;
+    }
+
+    .resume-page {
+        max-width: none;
+        min-height: auto;
+        box-shadow: none;
+    }
+
+    main {
+        max-width: none;
+        padding: 0;
+    }
+}

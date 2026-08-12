@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Interview"
+  short_description: "Build grounded, speakable interview prep"
+  default_prompt: "Use $prepare-interview to create interview answers from my submitted application package."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Resume Workspace"
+  short_description: "Personalize a fresh Next Job Kit workspace"
+  default_prompt: "Use $setup-resume-workspace to initialize my candidate profile and canonical resume files."

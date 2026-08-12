@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Resume"
+  short_description: "Verify resume truth, structure, and export"
+  default_prompt: "Use $audit-resume to validate this resume and its final PDF."

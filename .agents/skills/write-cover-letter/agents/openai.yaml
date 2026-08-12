@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Cover Letter"
+  short_description: "Write a concise evidence-backed letter"
+  default_prompt: "Use $write-cover-letter to draft a focused cover letter for this application."

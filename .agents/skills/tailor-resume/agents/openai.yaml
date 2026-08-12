@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tailor Resume"
+  short_description: "Create an evidence-backed tailored resume"
+  default_prompt: "Use $tailor-resume to create a truthful resume version for this job."

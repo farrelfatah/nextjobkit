@@ -1,0 +1,4 @@
+interface:
+  display_name: "Analyze Job Fit"
+  short_description: "Map job requirements to proven evidence"
+  default_prompt: "Use $analyze-job-fit to assess this role against my confirmed resume evidence."

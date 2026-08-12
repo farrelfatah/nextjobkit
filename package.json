@@ -1,0 +1,17 @@
+{
+  "name": "next-job-kit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export:resume": "node export/export-resume.mjs",
+    "preview:resume": "node export/preview-resume.mjs --port 4174",
+    "validate": "npm run validate:workspace && npm run validate:skills && npm run validate:template && npm run validate:fixtures",
+    "validate:workspace": "node scripts/validate-workspace.mjs",
+    "validate:skills": "node scripts/validate-skills.mjs",
+    "validate:template": "node scripts/validate-template.mjs",
+    "validate:fixtures": "node scripts/validate-fixtures.mjs",
+    "validate:pdf": "node scripts/validate-pdf.mjs",
+    "create:starter": "node scripts/create-starter.mjs",
+    "test": "npm run validate"
+  }
+}

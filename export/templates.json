@@ -1,0 +1,7 @@
+{
+  "classic-timeline": {
+    "label": "Classic Timeline",
+    "template": "export/resume-template.html",
+    "stylesheet": "export/resume.css"
+  }
+}

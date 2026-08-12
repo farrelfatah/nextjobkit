@@ -1,0 +1,12 @@
+{
+  "classic-timeline": {
+    "template": {
+      "path": "export/resume-template.html",
+      "sha256": "fc8236be045b49438fcdb25d18cdd2252c854c9aa295c623b663f23ab9e21bbc"
+    },
+    "stylesheet": {
+      "path": "export/resume.css",
+      "sha256": "691d3921f1e95a212279aab54886ac0086755a6716ff23ea8895603b1a4ab616"
+    }
+  }
+}

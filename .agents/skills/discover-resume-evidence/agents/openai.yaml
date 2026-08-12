@@ -1,0 +1,4 @@
+interface:
+  display_name: "Discover Resume Evidence"
+  short_description: "Turn experience into defensible evidence"
+  default_prompt: "Use $discover-resume-evidence to interview me and capture missing resume evidence."
