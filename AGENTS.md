@@ -169,7 +169,11 @@ npm run export:resume -- <resume-markdown-path> --pdf
 npm run validate:pdf -- <resume-pdf-path>
 ```
 
-`npm test` validates the workspace contract, seven first-party skills, and the locked template files without external packages.
+`npm test` validates the workspace contract, agent compatibility links, seven first-party skills, and the locked template files without external packages.
+
+## Agent Compatibility
+
+`AGENTS.md` and `.agents/skills/` are canonical. `CLAUDE.md` must remain a symbolic link to `AGENTS.md`, and `.claude/skills` must remain a symbolic link to `../.agents/skills`. Never maintain copied Claude-specific versions of these sources.
 
 ## Privacy and Safety
 

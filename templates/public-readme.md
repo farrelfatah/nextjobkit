@@ -38,4 +38,15 @@ Seven first-party skills live under `.agents/skills/`:
 
 Read `AGENTS.md` for the evidence, artifact, safety, export, and validation contract.
 
+## Agent Compatibility
+
+`AGENTS.md` and `.agents/skills/` are the only canonical agent sources. Claude Code uses committed symbolic links:
+
+```text
+CLAUDE.md -> AGENTS.md
+.claude/skills -> ../.agents/skills
+```
+
+Do not edit through the Claude paths. On Windows, enable Developer Mode and Git symbolic-link support before cloning. `npm test` fails when either link is missing, copied, or broken.
+
 The application tracker records opportunity state. The public workflow does not include a skill-usage log; automated synthetic regression fixtures live under `tests/fixtures/`.

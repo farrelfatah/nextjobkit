@@ -1,5 +1,13 @@
 #!/usr/bin/env node
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -38,6 +46,10 @@ for (const relativePath of [
   });
 }
 
+mkdirSync(path.join(outputRoot, ".claude"), { recursive: true });
+createSymlink("AGENTS.md", "CLAUDE.md", "file");
+createSymlink("../.agents/skills", ".claude/skills", "dir");
+
 mkdirSync(path.join(outputRoot, "tests"), { recursive: true });
 const fixtureSource = existsSync(path.join(repoRoot, "tests/fixtures"))
   ? path.join(repoRoot, "tests/fixtures")
@@ -66,4 +78,16 @@ function copyTemplate(sourceName, destination) {
   const target = path.join(outputRoot, destination);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, readFileSync(source));
+}
+
+function createSymlink(target, destination, type) {
+  try {
+    symlinkSync(target, path.join(outputRoot, destination), type);
+  } catch (error) {
+    console.error(
+      `Could not create ${destination} -> ${target}. Next Job Kit requires symbolic-link support for Claude Code compatibility.`,
+    );
+    console.error(error.message);
+    process.exit(1);
+  }
 }
