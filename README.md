@@ -8,13 +8,11 @@ An evidence-first agentic workflow for tailored resumes, cover letters, applicat
 2. Replace the placeholder master resume and evidence content.
 3. Ask your agent to analyze a job, tailor the resume, or prepare an application package.
 
-Export the configured master resume when you need delivery artifacts:
+When you are ready for a PDF, ask your agent:
 
-```sh
-npm run export:resume -- --pdf
-```
+> Export my configured resume as a PDF, validate it, and show me the final result.
 
-The current release supports the included `classic-timeline` template only. PDF export uses Chrome/Skia and prefers Playwright Chrome Headless Shell when installed. Your agent should validate the PDF and inspect every rendered page before treating it as final.
+The agent handles the export command, validates the PDF, inspects every rendered page, and gives you the finished file. You do not need to use the terminal. The current release supports the included `classic-timeline` template only.
 
 ## Workflow
 
@@ -51,12 +49,10 @@ Do not edit through the Claude paths. On Windows, enable Developer Mode and Git 
 
 ## Troubleshooting
 
-Most users never need to run repository tests. After cloning or updating, use this only when configuration paths or agent discovery appear broken:
+Most users never need to run repository checks. After cloning or updating, if configuration paths or agent discovery appear broken, ask your agent:
 
-```sh
-npm run doctor
-```
+> Check my Next Job Kit setup and fix any workspace configuration or agent compatibility problems.
 
-Contributors should run `npm test` before publishing changes. It checks skill metadata, template integrity, and synthetic regression fixtures in addition to the runtime diagnostics.
+The agent can run the optional diagnostics and explain anything that needs attention. Contributors—not regular users—should run `npm test` before publishing repository changes.
 
 The application tracker records opportunity state. The public workflow does not include a skill-usage log; automated synthetic regression fixtures live under `tests/fixtures/`.

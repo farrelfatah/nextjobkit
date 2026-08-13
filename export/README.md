@@ -4,7 +4,15 @@ Next Job Kit renders Markdown through the selected template in `profile/candidat
 
 The current release supports only `classic-timeline`, registered in `export/templates.json`. Its HTML and CSS hashes are locked in `export/template-baseline.json`.
 
-## Commands
+Most users should ask their agent:
+
+> Export my configured resume as a PDF, validate it, and show me the final result.
+
+The agent handles export, structural validation, and visual inspection before returning the finished PDF.
+
+## Agent and Maintainer Commands
+
+These commands document the underlying implementation. Regular users do not need to run them directly.
 
 ```sh
 npm run export:resume -- --pdf
