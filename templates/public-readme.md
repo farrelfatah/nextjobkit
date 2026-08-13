@@ -8,12 +8,13 @@ An evidence-first agentic workflow for tailored resumes, cover letters, applicat
 2. Replace the placeholder master resume and evidence content.
 3. Ask your agent to analyze a job, tailor the resume, or prepare an application package.
 
+Export the configured master resume when you need delivery artifacts:
+
 ```sh
-npm run preview:resume
 npm run export:resume -- --pdf
 ```
 
-The current release supports the included `classic-timeline` template only. PDF export uses Chrome/Skia and prefers Playwright Chrome Headless Shell when installed.
+The current release supports the included `classic-timeline` template only. PDF export uses Chrome/Skia and prefers Playwright Chrome Headless Shell when installed. Your agent should validate the PDF and inspect every rendered page before treating it as final.
 
 ## Workflow
 
