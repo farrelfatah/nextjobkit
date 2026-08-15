@@ -58,7 +58,7 @@ cpSync(fixtureSource, path.join(outputRoot, "tests/fixtures"), {
   recursive: true,
 });
 
-copyTemplate("public-readme.md", "README.md");
+copyProjectFile("README.md", "README.md");
 copyTemplate("public-license.txt", "LICENSE");
 copyTemplate("public-gitignore.txt", ".gitignore");
 copyTemplate("candidate.md", "profile/candidate.md");
@@ -75,6 +75,15 @@ console.log("The starter contains synthetic placeholders only; review profile/ca
 
 function copyTemplate(sourceName, destination) {
   const source = path.join(repoRoot, "templates", sourceName);
+  copyFile(source, destination);
+}
+
+function copyProjectFile(sourceName, destination) {
+  const source = path.join(repoRoot, sourceName);
+  copyFile(source, destination);
+}
+
+function copyFile(source, destination) {
   const target = path.join(outputRoot, destination);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, readFileSync(source));
