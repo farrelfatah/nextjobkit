@@ -19,6 +19,7 @@ const WORKSPACE_SCRIPTS = [
   "validate-fixtures.mjs",
   "validate-pdf.mjs",
   "validate-skills.mjs",
+  "validate-state.mjs",
   "validate-template.mjs",
   "validate-workspace.mjs",
 ];
@@ -63,6 +64,7 @@ export function createStarter(outputDirectory, options = {}) {
   });
 
   copyProjectFile(sourceRoot, outputRoot, "README.md", "README.md");
+  copyProjectFile(sourceRoot, outputRoot, "docs/updating.md", "docs/updating.md");
   copyTemplate(sourceRoot, outputRoot, "workspace-package.json", "package.json");
   copyTemplate(sourceRoot, outputRoot, "public-license.txt", "LICENSE");
   copyTemplate(sourceRoot, outputRoot, "public-gitignore.txt", ".gitignore");

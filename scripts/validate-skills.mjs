@@ -6,6 +6,15 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const skillsRoot = path.join(repoRoot, ".agents/skills");
 const failures = [];
+const firstPartySkills = [
+  "analyze-job-fit",
+  "audit-resume",
+  "discover-resume-evidence",
+  "prepare-interview",
+  "setup-resume-workspace",
+  "tailor-resume",
+  "write-cover-letter",
+];
 const skillNames = readdirSync(skillsRoot, { withFileTypes: true })
   .filter(
     (entry) =>
@@ -66,8 +75,8 @@ for (const skillName of skillNames) {
   }
 }
 
-if (skillNames.length !== 7) {
-  failures.push(`expected 7 first-party skills, found ${skillNames.length}`);
+for (const skillName of firstPartySkills) {
+  if (!skillNames.includes(skillName)) failures.push(`missing first-party skill: ${skillName}`);
 }
 
 if (failures.length > 0) {
@@ -75,7 +84,9 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Skills valid: ${skillNames.join(", ")}`);
+console.log(
+  `Skills valid: ${firstPartySkills.length} first-party, ${skillNames.length - firstPartySkills.length} user-created`,
+);
 
 function parseFrontmatter(source, skillName) {
   const match = source.match(/^---\n([\s\S]*?)\n---\n/);

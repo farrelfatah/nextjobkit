@@ -2,7 +2,7 @@
 
 Next Job Kit renders Markdown through the selected template in `profile/candidate.md`.
 
-The current release supports only `classic-timeline`, registered in `export/templates.json`. Its HTML and CSS hashes are locked in `export/template-baseline.json`.
+The current release includes one built-in, `classic-timeline`, registered in `export/templates.json`. Its HTML and CSS hashes are locked in `export/template-baseline.json`. User customizations fork into `export/custom-templates/<template-id>/`; those files are user-owned and are not part of the built-in hash baseline.
 
 Most users should ask their agent:
 
