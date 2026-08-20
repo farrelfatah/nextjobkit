@@ -59,7 +59,18 @@ jobs:
           else
             npm publish --access public
           fi
-          published_version="$(npm view "next-job-kit@$version" version)"
+          published_version=""
+          for attempt in {1..12}; do
+            if published_version="$(npm view "next-job-kit@$version" version 2>/dev/null)"; then
+              break
+            fi
+            if [[ "$attempt" -eq 12 ]]; then
+              echo "npm metadata did not propagate after 12 attempts" >&2
+              exit 1
+            fi
+            echo "Waiting for npm metadata to propagate (attempt $attempt/12)..."
+            sleep 5
+          done
           test "$published_version" = "$version"
       - name: Smoke-test the published CLI
         working-directory: ${{ runner.temp }}

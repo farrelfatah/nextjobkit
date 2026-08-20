@@ -32,6 +32,9 @@ for (const requirement of [
   "gh release edit",
   "working-directory: ${{ runner.temp }}",
   'if existing_sha="$(npm view',
+  "for attempt in {1..12}",
+  "npm metadata did not propagate after 12 attempts",
+  "sleep 5",
 ]) {
   assert(releaseWorkflow.includes(requirement), `release workflow is missing ${requirement}`);
 }
