@@ -1,7 +1,44 @@
 {
   "name": "next-job-kit",
-  "private": true,
+  "version": "0.1.0",
+  "description": "Prompt-first, evidence-based job application workspace for AI coding agents",
   "type": "module",
+  "bin": {
+    "next-job-kit": "./bin/next-job-kit.mjs"
+  },
+  "files": [
+    ".agents",
+    "bin",
+    "export",
+    "scripts",
+    "templates",
+    "tests/fixtures",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farrelfatah/nextjobkit.git"
+  },
+  "homepage": "https://github.com/farrelfatah/nextjobkit#readme",
+  "bugs": {
+    "url": "https://github.com/farrelfatah/nextjobkit/issues"
+  },
+  "keywords": [
+    "ai-agent",
+    "career",
+    "job-application",
+    "resume"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "export:resume": "node export/export-resume.mjs",
     "preview:resume": "node export/preview-resume.mjs --port 4174",

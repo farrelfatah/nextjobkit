@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { createStarter } from "../scripts/create-starter.mjs";
+
+const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const packageJson = JSON.parse(readFileSync(path.join(packageRoot, "package.json"), "utf8"));
+const args = process.argv.slice(2);
+const command = args[0];
+
+if (!command || command === "--help" || command === "-h" || command === "help") {
+  printHelp();
+} else if (command === "--version" || command === "-v" || command === "version") {
+  console.log(packageJson.version);
+} else if (command === "init") {
+  const destination = args[1];
+
+  if (!destination) {
+    fail("Usage: next-job-kit init <empty-output-directory>");
+  } else {
+    try {
+      const outputRoot = createStarter(destination, { sourceRoot: packageRoot });
+      console.log(`Next Job Kit workspace created: ${outputRoot}`);
+      console.log("Open that folder in your AI coding agent and ask it to initialize the workspace.");
+    } catch (error) {
+      fail(error.message);
+    }
+  }
+} else {
+  fail(`Unknown command: ${command}\n\nRun next-job-kit --help for usage.`);
+}
+
+function printHelp() {
+  console.log(`Next Job Kit ${packageJson.version}
+
+Usage:
+  next-job-kit init <directory>
+  next-job-kit --help
+  next-job-kit --version
+
+Next Job Kit creates a local, prompt-first career workspace for Codex or Claude Code.`);
+}
+
+function fail(message) {
+  console.error(message);
+  process.exitCode = 1;
+}
