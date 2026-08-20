@@ -24,12 +24,6 @@ try {
     }
   }
 
-  if (workspace.template.id !== "classic-timeline") {
-    failures.push(
-      `this release only supports resume_template: classic-timeline; found ${workspace.template.id}`,
-    );
-  }
-
   if (failures.length > 0) {
     throw new Error(failures.join("\n- "));
   }

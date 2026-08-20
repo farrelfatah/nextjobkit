@@ -1,7 +1,11 @@
 {
-  "classic-timeline": {
-    "label": "Classic Timeline",
-    "template": "export/resume-template.html",
-    "stylesheet": "export/resume.css"
+  "schema_version": 1,
+  "templates": {
+    "classic-timeline": {
+      "label": "Classic Timeline",
+      "origin": "built-in",
+      "template": "export/resume-template.html",
+      "stylesheet": "export/resume.css"
+    }
   }
 }

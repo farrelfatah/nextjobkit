@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createStarter } from "../scripts/create-starter.mjs";
+import { forkTemplate } from "../lib/template-customization.mjs";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const packageJson = JSON.parse(readFileSync(path.join(packageRoot, "package.json"), "utf8"));
@@ -28,6 +29,26 @@ if (!command || command === "--help" || command === "-h" || command === "help") 
       fail(error.message);
     }
   }
+} else if (command === "template" && args[1] === "fork") {
+  const sourceId = args[2];
+  const customId = args[3];
+  const workspaceIndex = args.indexOf("--workspace");
+  const workspaceRoot = workspaceIndex === -1 ? process.cwd() : args[workspaceIndex + 1];
+
+  if (!sourceId || !customId || !workspaceRoot) {
+    fail(
+      "Usage: next-job-kit template fork <built-in-template-id> <custom-template-id> [--workspace <directory>]",
+    );
+  } else {
+    try {
+      const result = forkTemplate(workspaceRoot, sourceId, customId);
+      console.log(`Custom template created: ${result.customId}`);
+      console.log(`Template directory: ${result.relativeDirectory}`);
+      console.log("profile/candidate.md now selects the custom template.");
+    } catch (error) {
+      fail(error.message);
+    }
+  }
 } else {
   fail(`Unknown command: ${command}\n\nRun next-job-kit --help for usage.`);
 }
@@ -37,6 +58,7 @@ function printHelp() {
 
 Usage:
   next-job-kit init <directory>
+  next-job-kit template fork <built-in-id> <custom-id> [--workspace <directory>]
   next-job-kit --help
   next-job-kit --version
 
