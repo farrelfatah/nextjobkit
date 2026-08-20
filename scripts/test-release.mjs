@@ -31,6 +31,7 @@ for (const requirement of [
   "gh release create",
   "gh release edit",
   "working-directory: ${{ runner.temp }}",
+  'if existing_sha="$(npm view',
 ]) {
   assert(releaseWorkflow.includes(requirement), `release workflow is missing ${requirement}`);
 }

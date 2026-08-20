@@ -48,8 +48,8 @@ jobs:
       - name: Publish to npm with provenance
         run: |
           version="${GITHUB_REF_NAME#v}"
-          existing_sha="$(npm view "next-job-kit@$version" gitHead --json 2>/dev/null | tr -d '"' || true)"
-          if [[ -n "$existing_sha" ]]; then
+          if existing_sha="$(npm view "next-job-kit@$version" gitHead --json 2>/dev/null)"; then
+            existing_sha="$(tr -d '"' <<< "$existing_sha")"
             if [[ "$existing_sha" != "$GITHUB_SHA" ]]; then
               echo "npm version already exists from a different commit: $existing_sha" >&2
               exit 1
