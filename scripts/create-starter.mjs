@@ -11,7 +11,17 @@ import {
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { initializeWorkspaceState } from "../lib/workspace-state.mjs";
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const WORKSPACE_SCRIPTS = [
+  "validate-agent-compat.mjs",
+  "validate-fixtures.mjs",
+  "validate-pdf.mjs",
+  "validate-skills.mjs",
+  "validate-template.mjs",
+  "validate-workspace.mjs",
+];
 
 export function createStarter(outputDirectory, options = {}) {
   if (!outputDirectory) {
@@ -32,10 +42,15 @@ export function createStarter(outputDirectory, options = {}) {
 
   mkdirSync(outputRoot, { recursive: true });
 
-  for (const relativePath of [".agents/skills", "export", "scripts", "templates", "AGENTS.md"]) {
+  for (const relativePath of [".agents/skills", "export", "templates", "AGENTS.md"]) {
     cpSync(path.join(sourceRoot, relativePath), path.join(outputRoot, relativePath), {
       recursive: true,
     });
+  }
+
+  mkdirSync(path.join(outputRoot, "scripts"), { recursive: true });
+  for (const script of WORKSPACE_SCRIPTS) {
+    cpSync(path.join(sourceRoot, "scripts", script), path.join(outputRoot, "scripts", script));
   }
 
   mkdirSync(path.join(outputRoot, ".claude"), { recursive: true });
@@ -64,6 +79,9 @@ export function createStarter(outputDirectory, options = {}) {
   for (const directory of ["tailored", "cover-letters", "archive"]) {
     mkdirSync(path.join(outputRoot, directory), { recursive: true });
   }
+
+  const packageJson = JSON.parse(readFileSync(path.join(sourceRoot, "package.json"), "utf8"));
+  initializeWorkspaceState(outputRoot, packageJson.version);
 
   return outputRoot;
 }
