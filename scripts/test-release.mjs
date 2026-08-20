@@ -12,7 +12,9 @@ const tag = `v${packageJson.version}`;
 
 assert(validateRelease(repoRoot, tag) === packageJson.version, "current release contract is invalid");
 expectFailure(() => validateRelease(repoRoot, "v9.9.9"), "mismatched release tag");
-assert(extractReleaseNotes(repoRoot, tag).includes("### Added"), "release notes extraction failed");
+const releaseNotes = extractReleaseNotes(repoRoot, tag);
+assert(releaseNotes.startsWith(`## [${packageJson.version}]`), "release notes heading is incorrect");
+assert(/^### (Added|Changed|Deprecated|Removed|Fixed|Security)$/m.test(releaseNotes), "release notes have no recognized category");
 
 const lock = JSON.parse(readFileSync(path.join(repoRoot, "package-lock.json"), "utf8"));
 assert(lock.version === packageJson.version, "package-lock version differs from package.json");

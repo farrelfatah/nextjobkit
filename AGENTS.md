@@ -189,6 +189,8 @@ Human documentation leads with natural-language prompts. CLI commands are implem
 
 Updates use Base/Local/Incoming comparison. Preserve unknown files and user-owned paths, merge only non-overlapping text or semantic JSON changes, and block unresolved overlap. Never write conflict markers into live files. Recheck dry-run preconditions, create a backup, validate after application, and restore automatically on failure.
 
+For an interactive update, run the dry-run first, explain every preserved customization and conflict, and wait for explicit approval before applying that exact plan.
+
 `.next-job-kit/manifest.json` and `.next-job-kit/history.jsonl` are internal operational metadata, not user configuration. History may record versions, relative paths, decisions, validation, and backup IDs; it must not record prompts, résumé contents, diffs, secrets, or absolute paths. Base caches, pending plans, and backups remain ignored by Git.
 
 ## Maintainer Validation
