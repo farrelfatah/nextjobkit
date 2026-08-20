@@ -31,14 +31,19 @@ It is not a job board, an automatic application bot, or a license to manufacture
 
 ## Quick Start
 
-### 1. Clone and open the workspace
+### 1. Create and open a local workspace
+
+Open Codex or Claude Code in the folder where you want to keep your career files, then paste:
+
+> Set up Next Job Kit for me locally. Use the latest published `next-job-kit` npm package to create a new workspace in `./next-job-kit`; handle the required npm or npx commands yourself. After creating it, use that folder as the working directory and confirm that `README.md`, `AGENTS.md`, and `.agents/skills/` are available. Do not create accounts, publish anything, or push anything to GitHub unless I explicitly ask.
+
+The agent runs the implementation command for you. Terminal users can run it directly:
 
 ```sh
-git clone https://github.com/farrelfatah/nextjobkit.git
-cd nextjobkit
+npx next-job-kit@latest init ./next-job-kit
 ```
 
-Open the cloned folder in Codex or Claude Code. The repository includes its agent instructions and seven first-party workflow skills; you do not need to install a separate resume skill.
+Open the generated folder in Codex or Claude Code. It includes the agent instructions and seven first-party workflow skills; you do not need to install a separate resume skill or keep the npm package installed globally.
 
 ### 2. Ask the agent to initialize it
 
@@ -108,9 +113,9 @@ Explicit boundaries matter. “Prepare” authorizes artifact creation; it does 
 
 ## Common Use Cases and Prompts
 
-### Initialize or repair a clone
+### Initialize or repair a workspace
 
-> Use `setup-resume-workspace` to personalize this clone. Interview me for required information, use my existing resume where it is supported, preserve non-placeholder content, create missing canonical files from the templates, and validate the result.
+> Use `setup-resume-workspace` to personalize this workspace. Interview me for required information, use my existing resume where it is supported, preserve non-placeholder content, create missing canonical files from the templates, and validate the result.
 
 Use this for a first setup, changed identity or paths, or a workspace that no longer validates.
 
@@ -174,7 +179,19 @@ If the submitted package is unknown, provide its paths. The agent should not gue
 
 > Check my Next Job Kit setup and repair workspace configuration or agent compatibility problems. Preserve my resume data and submitted artifacts, run the appropriate diagnostics, and explain any gaps that still need my input.
 
-`npm run doctor` is the optional clone/update troubleshooting check. `npm test` is for contributors and CI, not routine candidate use.
+`npm run doctor` is the optional workspace/update troubleshooting check. `npm test` is for contributors and CI, not routine candidate use.
+
+### Update Next Job Kit safely
+
+> Check my Next Job Kit for updates. Run a dry-run first, explain what will update cleanly, what local customizations will be preserved, and any conflicts that need my decision. Do not apply the update until I approve the plan. After approval, apply that exact plan, validate the workspace, and show me the backup ID.
+
+Updates compare the originally installed framework, your current workspace, and the incoming release. Unknown files and user-owned career data are preserved. Overlapping changes to framework instructions or skills require an explicit decision; they are never silently overwritten. See [`docs/updating.md`](docs/updating.md) for conflict and rollback behavior.
+
+### Customize the resume template
+
+> Customize my current resume template with [describe the changes]. If it is a built-in template, fork it once under a clear custom template ID, select that custom template in my candidate profile, preserve the built-in version for future updates, then export and visually inspect the result.
+
+The included `classic-timeline` remains a locked built-in. The agent creates one user-owned copy for customization and keeps editing that copy; it does not generate another template on every change.
 
 ## The Seven First-Party Skills
 
@@ -203,9 +220,28 @@ applications/[candidate-slug]-[company]-[role-type]-interview-prep-[yyyymmdd].md
 
 Keep HTML and PDF exports beside their matching Markdown source. Archive submitted artifacts instead of overwriting or deleting them. The tracker records opportunities and sent artifacts; it is not a log of which agent skills ran.
 
+Generated npm workspaces also contain internal update metadata:
+
+```text
+.next-job-kit/
+├── manifest.json       installed version and framework ownership
+├── history.jsonl       privacy-safe update and template decisions
+├── base-cache/         ignored original framework snapshot
+├── backups/            ignored rollback copies
+└── pending/            ignored dry-run plans
+```
+
+`manifest.json` and `history.jsonl` are operational records, not another user configuration interface. They never store prompts, résumé contents, diffs, secrets, or absolute paths.
+
 ## Privacy and Safety
 
-Resume and application data is personal data. Keep private compensation, government identifiers, secrets, and unnecessary form answers out of tracked files. If you personalize a public clone, do not push your candidate data to a public repository.
+Resume and application data is personal data. Keep private compensation, government identifiers, secrets, and unnecessary form answers out of tracked files. Do not push personalized candidate data to a public repository.
+
+Local-first does not mean local-only. If you want cloud backup later, ask:
+
+> Back up my Next Job Kit workspace to a new private GitHub repository. Check authentication first, explain exactly which files will be committed, exclude ignored caches and backups, and do not make the repository public.
+
+GitHub is optional. You can use Next Job Kit without an account and add private backup only when it is useful to you.
 
 Next Job Kit intentionally requires explicit confirmation for submission state, legal eligibility, work authorization, salary, and application-specific answers. These are exactly the details an AI should not “helpfully” guess.
 
@@ -225,6 +261,8 @@ Do not maintain copied Claude-specific versions. On Windows, enable Developer Mo
 Most users should prompt the agent instead of running these directly:
 
 ```sh
+npx next-job-kit@latest init ./next-job-kit
+npx next-job-kit@latest update ./next-job-kit
 npm run doctor
 npm run export:resume -- <resume-markdown-path> --pdf
 npm run validate:pdf -- <resume-pdf-path>
@@ -236,4 +274,11 @@ Contributors should run the complete validation suite before publishing changes:
 npm test
 ```
 
-The suite validates workspace configuration, agent compatibility, all seven skills, the locked template, and synthetic regression fixtures. See `AGENTS.md` for the full evidence, artifact, safety, export, and validation contract, and `export/README.md` for renderer details.
+The suite validates workspace configuration, agent compatibility, the seven required first-party skills plus any valid user-created skills, the locked template, package privacy, update safety, and synthetic regression fixtures. See `AGENTS.md` for the full evidence, artifact, safety, export, and validation contract, and `export/README.md` for renderer details.
+
+Contributors working on Next Job Kit itself should clone the source repository rather than initialize a candidate workspace:
+
+```sh
+git clone https://github.com/farrelfatah/nextjobkit.git
+cd nextjobkit
+```

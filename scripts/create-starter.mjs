@@ -9,94 +9,130 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { initializeWorkspaceState } from "../lib/workspace-state.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const outputArg = process.argv[2];
+const WORKSPACE_SCRIPTS = [
+  "validate-agent-compat.mjs",
+  "validate-fixtures.mjs",
+  "validate-pdf.mjs",
+  "validate-skills.mjs",
+  "validate-state.mjs",
+  "validate-template.mjs",
+  "validate-workspace.mjs",
+];
 
-if (!outputArg) {
-  console.error("Usage: npm run create:starter -- <empty-output-directory>");
-  process.exit(1);
-}
+export function createStarter(outputDirectory, options = {}) {
+  if (!outputDirectory) {
+    throw new Error("An output directory is required");
+  }
 
-const outputRoot = path.resolve(process.cwd(), outputArg);
+  const sourceRoot = options.sourceRoot ? path.resolve(options.sourceRoot) : repoRoot;
+  const workingDirectory = options.cwd ? path.resolve(options.cwd) : process.cwd();
+  const outputRoot = path.resolve(workingDirectory, outputDirectory);
 
-if (outputRoot === repoRoot || outputRoot === path.parse(outputRoot).root) {
-  console.error("Refusing to use the repository or filesystem root as the starter destination");
-  process.exit(1);
-}
+  if (outputRoot === sourceRoot || outputRoot === path.parse(outputRoot).root) {
+    throw new Error("Refusing to use the package or filesystem root as the starter destination");
+  }
 
-if (existsSync(outputRoot) && readdirSync(outputRoot).length > 0) {
-  console.error(`Starter destination must be empty: ${outputRoot}`);
-  process.exit(1);
-}
+  if (existsSync(outputRoot) && readdirSync(outputRoot).length > 0) {
+    throw new Error(`Starter destination must be empty: ${outputRoot}`);
+  }
 
-mkdirSync(outputRoot, { recursive: true });
+  mkdirSync(outputRoot, { recursive: true });
 
-for (const relativePath of [
-  ".agents/skills",
-  "export",
-  "scripts",
-  "templates",
-  "AGENTS.md",
-  "package.json",
-]) {
-  cpSync(path.join(repoRoot, relativePath), path.join(outputRoot, relativePath), {
+  for (const relativePath of [".agents/skills", "export", "templates", "AGENTS.md"]) {
+    cpSync(path.join(sourceRoot, relativePath), path.join(outputRoot, relativePath), {
+      recursive: true,
+    });
+  }
+
+  mkdirSync(path.join(outputRoot, "scripts"), { recursive: true });
+  for (const script of WORKSPACE_SCRIPTS) {
+    cpSync(path.join(sourceRoot, "scripts", script), path.join(outputRoot, "scripts", script));
+  }
+
+  mkdirSync(path.join(outputRoot, ".claude"), { recursive: true });
+  createSymlink(outputRoot, "AGENTS.md", "CLAUDE.md", "file");
+  createSymlink(outputRoot, "../.agents/skills", ".claude/skills", "dir");
+
+  mkdirSync(path.join(outputRoot, "tests"), { recursive: true });
+  cpSync(path.join(sourceRoot, "tests/fixtures"), path.join(outputRoot, "tests/fixtures"), {
     recursive: true,
   });
+
+  copyProjectFile(sourceRoot, outputRoot, "README.md", "README.md");
+  copyProjectFile(sourceRoot, outputRoot, "docs/updating.md", "docs/updating.md");
+  copyTemplate(sourceRoot, outputRoot, "workspace-package.json", "package.json");
+  copyTemplate(sourceRoot, outputRoot, "public-license.txt", "LICENSE");
+  copyTemplate(sourceRoot, outputRoot, "public-gitignore.txt", ".gitignore");
+  copyTemplate(sourceRoot, outputRoot, "candidate.md", "profile/candidate.md");
+  copyTemplate(sourceRoot, outputRoot, "master-resume.md", "master/your-name-master-resume.md");
+  copyTemplate(sourceRoot, outputRoot, "resume-evidence.md", "master/your-name-resume-evidence.md");
+  copyTemplate(
+    sourceRoot,
+    outputRoot,
+    "application-tracker.md",
+    "applications/application-tracker.md",
+  );
+
+  for (const directory of ["tailored", "cover-letters", "archive"]) {
+    mkdirSync(path.join(outputRoot, directory), { recursive: true });
+  }
+
+  const packageJson = JSON.parse(readFileSync(path.join(sourceRoot, "package.json"), "utf8"));
+  initializeWorkspaceState(outputRoot, packageJson.version);
+
+  return outputRoot;
 }
 
-mkdirSync(path.join(outputRoot, ".claude"), { recursive: true });
-createSymlink("AGENTS.md", "CLAUDE.md", "file");
-createSymlink("../.agents/skills", ".claude/skills", "dir");
-
-mkdirSync(path.join(outputRoot, "tests"), { recursive: true });
-const fixtureSource = existsSync(path.join(repoRoot, "tests/fixtures"))
-  ? path.join(repoRoot, "tests/fixtures")
-  : path.join(repoRoot, "evals/fixtures");
-cpSync(fixtureSource, path.join(outputRoot, "tests/fixtures"), {
-  recursive: true,
-});
-
-copyProjectFile("README.md", "README.md");
-copyTemplate("public-license.txt", "LICENSE");
-copyTemplate("public-gitignore.txt", ".gitignore");
-copyTemplate("candidate.md", "profile/candidate.md");
-copyTemplate("master-resume.md", "master/your-name-master-resume.md");
-copyTemplate("resume-evidence.md", "master/your-name-resume-evidence.md");
-copyTemplate("application-tracker.md", "applications/application-tracker.md");
-
-for (const directory of ["tailored", "cover-letters", "archive"]) {
-  mkdirSync(path.join(outputRoot, directory), { recursive: true });
+function copyTemplate(sourceRoot, outputRoot, sourceName, destination) {
+  copyFile(outputRoot, path.join(sourceRoot, "templates", sourceName), destination);
 }
 
-console.log(`Next Job Kit starter written: ${outputRoot}`);
-console.log("The starter contains synthetic placeholders only; review profile/candidate.md before use.");
-
-function copyTemplate(sourceName, destination) {
-  const source = path.join(repoRoot, "templates", sourceName);
-  copyFile(source, destination);
+function copyProjectFile(sourceRoot, outputRoot, sourceName, destination) {
+  copyFile(outputRoot, path.join(sourceRoot, sourceName), destination);
 }
 
-function copyProjectFile(sourceName, destination) {
-  const source = path.join(repoRoot, sourceName);
-  copyFile(source, destination);
-}
-
-function copyFile(source, destination) {
+function copyFile(outputRoot, source, destination) {
   const target = path.join(outputRoot, destination);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, readFileSync(source));
 }
 
-function createSymlink(target, destination, type) {
+function createSymlink(outputRoot, target, destination, type) {
   try {
     symlinkSync(target, path.join(outputRoot, destination), type);
   } catch (error) {
-    console.error(
-      `Could not create ${destination} -> ${target}. Next Job Kit requires symbolic-link support for Claude Code compatibility.`,
+    throw new Error(
+      `Could not create ${destination} -> ${target}. Next Job Kit requires symbolic-link support for Claude Code compatibility: ${error.message}`,
     );
-    console.error(error.message);
-    process.exit(1);
   }
+}
+
+function runFromCommandLine() {
+  const outputArg = process.argv[2];
+
+  if (!outputArg) {
+    console.error("Usage: npm run create:starter -- <empty-output-directory>");
+    process.exitCode = 1;
+    return;
+  }
+
+  try {
+    const outputRoot = createStarter(outputArg);
+    console.log(`Next Job Kit starter written: ${outputRoot}`);
+    console.log(
+      "The starter contains synthetic placeholders only; review profile/candidate.md before use.",
+    );
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  runFromCommandLine();
 }

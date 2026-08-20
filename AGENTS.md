@@ -4,7 +4,7 @@
 
 Help a candidate build defensible, role-specific application packages from evidence. Optimize for truth, relevance, and usable artifacts—not résumé theater.
 
-The workflow must remain portable to a clean clone even when the current workspace contains real candidate data.
+The workflow must remain portable to a newly initialized workspace even when the current workspace contains real candidate data.
 
 ## Read First
 
@@ -33,7 +33,7 @@ Use the smallest skill that owns the current stage:
 
 | Need | Skill |
 | --- | --- |
-| Personalize or repair a clone | `setup-resume-workspace` |
+| Personalize or repair a workspace | `setup-resume-workspace` |
 | Missing facts, outcomes, or direction | `discover-resume-evidence` |
 | Requirements, eligibility, and fit | `analyze-job-fit` |
 | Targeted resume version | `tailor-resume` |
@@ -136,14 +136,14 @@ Do not add a second config file for template selection or career decisions.
 
 ## Export Contract
 
-The current release supports one template: `classic-timeline`.
+The current release supports one built-in template: `classic-timeline`. Users may fork it into a user-owned custom template through the Next Job Kit CLI; keep built-in and custom template IDs distinct.
 
 Its approved files are:
 
 - `export/resume-template.html`
 - `export/resume.css`
 
-Do not replace, restyle, or reinterpret this template. `export/template-baseline.json` locks its approved hashes. Future templates must be additive and registered in `export/templates.json`.
+Do not replace, restyle, or reinterpret the built-in files. `export/template-baseline.json` locks their approved hashes. Built-in additions must be additive and registered in `export/templates.json`. Custom templates live under `export/custom-templates/`, use `origin: user`, and are never baseline-locked or overwritten by updates.
 
 Export with:
 
@@ -169,7 +169,27 @@ npm run export:resume -- <resume-markdown-path> --pdf
 npm run validate:pdf -- <resume-pdf-path>
 ```
 
-Users are not expected to run repository tests routinely. `npm run doctor` is an optional clone, update, and troubleshooting check for workspace configuration and agent compatibility.
+Users are not expected to run repository tests routinely. `npm run doctor` is an optional initialization, update, and troubleshooting check for workspace configuration and agent compatibility.
+
+## Distribution and Updates
+
+The public npm package is the versioned distribution artifact; generated workspaces remain private and must not inherit publishing metadata.
+
+The agent-facing CLI surface is:
+
+```sh
+next-job-kit init <directory>
+next-job-kit template fork <built-in-id> <custom-id> --workspace <directory>
+next-job-kit update <directory>
+next-job-kit update <directory> --apply --plan <plan-id>
+next-job-kit update <directory> --rollback <backup-id>
+```
+
+Human documentation leads with natural-language prompts. CLI commands are implementation details the agent normally operates.
+
+Updates use Base/Local/Incoming comparison. Preserve unknown files and user-owned paths, merge only non-overlapping text or semantic JSON changes, and block unresolved overlap. Never write conflict markers into live files. Recheck dry-run preconditions, create a backup, validate after application, and restore automatically on failure.
+
+`.next-job-kit/manifest.json` and `.next-job-kit/history.jsonl` are internal operational metadata, not user configuration. History may record versions, relative paths, decisions, validation, and backup IDs; it must not record prompts, résumé contents, diffs, secrets, or absolute paths. Base caches, pending plans, and backups remain ignored by Git.
 
 ## Maintainer Validation
 
@@ -177,7 +197,7 @@ Users are not expected to run repository tests routinely. `npm run doctor` is an
 npm test
 ```
 
-`npm test` is a contributor and CI gate. It validates runtime diagnostics, seven first-party skills, locked template files, and synthetic regression fixtures without external packages.
+`npm test` is a contributor and CI gate. It validates runtime diagnostics, seven required first-party skills plus valid user-created skills, locked template files, package privacy, update safety, and synthetic regression fixtures without external packages.
 
 ## Agent Compatibility
 

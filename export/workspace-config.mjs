@@ -51,7 +51,7 @@ export function resolveWorkspacePath(repoRoot, configuredPath) {
   return resolved;
 }
 
-function resolveTemplate(repoRoot, templateId) {
+export function loadTemplateRegistry(repoRoot) {
   const registryPath = path.resolve(repoRoot, TEMPLATE_REGISTRY_PATH);
 
   if (!existsSync(registryPath)) {
@@ -59,10 +59,20 @@ function resolveTemplate(repoRoot, templateId) {
   }
 
   const registry = JSON.parse(readFileSync(registryPath, "utf8"));
-  const entry = registry[templateId];
+
+  if (registry.schema_version !== 1 || !registry.templates || Array.isArray(registry.templates)) {
+    throw new Error(`${TEMPLATE_REGISTRY_PATH} must use schema_version 1`);
+  }
+
+  return { path: registryPath, values: registry };
+}
+
+function resolveTemplate(repoRoot, templateId) {
+  const registry = loadTemplateRegistry(repoRoot).values;
+  const entry = registry.templates[templateId];
 
   if (!entry) {
-    const supported = Object.keys(registry).sort().join(", ");
+    const supported = Object.keys(registry.templates).sort().join(", ");
     throw new Error(
       `Unknown resume_template "${templateId}". Supported templates: ${supported || "none"}.`,
     );
@@ -82,6 +92,7 @@ function resolveTemplate(repoRoot, templateId) {
   return {
     id: templateId,
     label: entry.label || templateId,
+    origin: entry.origin || "user",
     templatePath,
     stylesheetPath,
   };

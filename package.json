@@ -1,19 +1,63 @@
 {
   "name": "next-job-kit",
-  "private": true,
+  "version": "0.1.0-beta.1",
+  "description": "Prompt-first, evidence-based job application workspace for AI coding agents",
   "type": "module",
+  "bin": {
+    "next-job-kit": "./bin/next-job-kit.mjs"
+  },
+  "files": [
+    ".agents",
+    "bin",
+    "docs",
+    "export",
+    "lib",
+    "scripts",
+    "templates",
+    "tests/fixtures",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farrelfatah/nextjobkit.git"
+  },
+  "homepage": "https://github.com/farrelfatah/nextjobkit#readme",
+  "bugs": {
+    "url": "https://github.com/farrelfatah/nextjobkit/issues"
+  },
+  "keywords": [
+    "ai-agent",
+    "career",
+    "job-application",
+    "resume"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "export:resume": "node export/export-resume.mjs",
     "preview:resume": "node export/preview-resume.mjs --port 4174",
-    "doctor": "npm run validate:workspace && npm run validate:agent-compat",
-    "validate": "npm run validate:workspace && npm run validate:agent-compat && npm run validate:skills && npm run validate:template && npm run validate:fixtures",
+    "doctor": "npm run validate:workspace && npm run validate:agent-compat && npm run validate:state",
+    "validate": "npm run validate:workspace && npm run validate:agent-compat && npm run validate:state && npm run validate:skills && npm run validate:template && npm run validate:fixtures",
     "validate:workspace": "node scripts/validate-workspace.mjs",
     "validate:agent-compat": "node scripts/validate-agent-compat.mjs",
+    "validate:state": "node scripts/validate-state.mjs",
     "validate:skills": "node scripts/validate-skills.mjs",
     "validate:template": "node scripts/validate-template.mjs",
     "validate:fixtures": "node scripts/validate-fixtures.mjs",
     "validate:pdf": "node scripts/validate-pdf.mjs",
     "create:starter": "node scripts/create-starter.mjs",
-    "test": "npm run validate"
+    "test:package": "node scripts/test-package.mjs",
+    "test:templates": "node scripts/test-template-customization.mjs",
+    "test:update": "node scripts/test-update.mjs",
+    "test:release": "node scripts/test-release.mjs",
+    "test": "npm run validate && npm run test:package && npm run test:templates && npm run test:update && npm run test:release"
   }
 }
