@@ -28,6 +28,7 @@ for (const requirement of [
   "release-notes.mjs",
   "gh release create",
   "gh release edit",
+  "working-directory: ${{ runner.temp }}",
 ]) {
   assert(releaseWorkflow.includes(requirement), `release workflow is missing ${requirement}`);
 }
