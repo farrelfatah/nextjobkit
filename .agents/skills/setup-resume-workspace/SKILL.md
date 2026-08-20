@@ -43,6 +43,7 @@ Only accept a `resume_template` registered in `export/templates.json`. Do not si
 - Do not put secrets, government identifiers, private phone numbers, or unconfirmed compensation into tracked files.
 - Do not create multiple master resumes.
 - Preserve the configured paths during a compatibility migration.
+- Do not edit or regenerate `.next-job-kit/` update metadata during setup; use the update CLI for version changes.
 
 ## Completion Standard
 

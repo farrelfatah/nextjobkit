@@ -2,6 +2,17 @@
 
 Notable changes to Next Job Kit are documented here. Release notes describe user-visible behavior; executable migration logic lives in the package.
 
+## [0.1.0-beta.2] - 2026-08-20
+
+### Changed
+
+- Update agents now require a dry-run explanation and explicit approval before applying the exact plan.
+- Workspace setup now preserves installed update metadata instead of treating it as setup configuration.
+
+### Fixed
+
+- GitHub releases smoke-test the registry-installed CLI outside the maintainer package so npm resolves the published executable correctly.
+
 ## [0.1.0-beta.1] - 2026-08-20
 
 ### Added
