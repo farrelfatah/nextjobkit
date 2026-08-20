@@ -1,6 +1,6 @@
 {
   "name": "next-job-kit",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0",
   "description": "Prompt-first, evidence-based job application workspace for AI coding agents",
   "type": "module",
   "bin": {
