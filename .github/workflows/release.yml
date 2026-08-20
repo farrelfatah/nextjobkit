@@ -62,6 +62,7 @@ jobs:
           published_version="$(npm view "next-job-kit@$version" version)"
           test "$published_version" = "$version"
       - name: Smoke-test the published CLI
+        working-directory: ${{ runner.temp }}
         run: |
           version="${GITHUB_REF_NAME#v}"
           reported="$(npm exec --yes --package="next-job-kit@$version" -- next-job-kit --version)"
