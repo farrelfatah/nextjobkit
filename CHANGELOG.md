@@ -2,7 +2,7 @@
 
 Notable changes to Next Job Kit are documented here. Release notes describe user-visible behavior; executable migration logic lives in the package.
 
-## [0.1.0] - 2026-08-20
+## [0.1.0-beta.1] - 2026-08-20
 
 ### Added
 

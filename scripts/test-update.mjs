@@ -20,6 +20,7 @@ import { applyUpdate, planUpdate, rollbackUpdate } from "../lib/update.mjs";
 import { createStarter } from "./create-starter.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const baseVersion = JSON.parse(readFileSync(path.join(repoRoot, "package.json"), "utf8")).version;
 const temporaryRoot = mkdtempSync(path.join(tmpdir(), "next-job-kit-update-"));
 
 try {
@@ -71,7 +72,7 @@ function testCleanMergeAndRollback() {
   const rolledBack = readFileSync(path.join(workspace, "AGENTS.md"), "utf8");
   assert(!rolledBack.includes("Incoming release instruction."), "rollback retained incoming content");
   assert(rolledBack.includes("Local workflow instruction."), "rollback lost pre-update local content");
-  assert(installedVersion(workspace) === "0.1.0", "rollback did not restore manifest version");
+  assert(installedVersion(workspace) === baseVersion, "rollback did not restore manifest version");
 }
 
 function testConflictAndExplicitResolution() {
@@ -137,7 +138,7 @@ function testStalePlanIsRejected() {
   const plan = planUpdate(workspace, { sourceRoot: source });
   appendFileSync(path.join(workspace, "AGENTS.md"), "\nChanged after plan.\n");
   expectFailure(() => applyUpdate(workspace, plan.plan_id), "stale update plan");
-  assert(installedVersion(workspace) === "0.1.0", "stale plan advanced the manifest");
+  assert(installedVersion(workspace) === baseVersion, "stale plan advanced the manifest");
 }
 
 function testPlanRejectsNewerInstalledState() {
@@ -190,7 +191,7 @@ function testValidationFailureRollsBack() {
   const plan = planUpdate(workspace, { sourceRoot: source });
   expectFailure(() => applyUpdate(workspace, plan.plan_id), "failed post-update validation");
   assert(readFileSync(path.join(workspace, "scripts/validate-workspace.mjs"), "utf8") === original, "failed update was not restored");
-  assert(installedVersion(workspace) === "0.1.0", "failed update advanced the manifest");
+  assert(installedVersion(workspace) === baseVersion, "failed update advanced the manifest");
 }
 
 function testRollbackRejectsLaterEdits() {
