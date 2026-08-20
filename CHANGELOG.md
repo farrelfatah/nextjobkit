@@ -2,6 +2,33 @@
 
 Notable changes to Next Job Kit are documented here. Release notes describe user-visible behavior; executable migration logic lives in the package.
 
+## [0.1.0] - 2026-08-20
+
+### Added
+
+- Prompt-first npm initialization for local, user-owned Next Job Kit workspaces.
+- Seven evidence-first skills covering setup, discovery, job analysis, tailoring, cover letters, resume audits, and interview preparation.
+- A locked built-in resume template with one-time, user-owned template forking for safe customization.
+- Dry-run-first updates with Base/Local/Incoming comparison, conflict decisions, backups, privacy-safe history, validation, and rollback.
+- Cross-platform package installation tests, workspace diagnostics, PDF export validation, and synthetic regression fixtures.
+- Tag-driven GitHub Releases and npm Trusted Publishing with signed provenance.
+
+### Changed
+
+- Interactive updates require an explained dry-run and explicit approval before applying the exact plan.
+- Setup treats `.next-job-kit/` as internal operational state and leaves version changes to the updater.
+
+### Fixed
+
+- Installed npm command shims run correctly on Windows and Unix.
+- Release smoke tests resolve the registry CLI from a clean directory.
+- Release automation distinguishes missing npm versions from existing commits and tolerates bounded registry propagation delays without retrying publication.
+
+### Migration notes
+
+- Beta workspaces can update in place; local instruction, skill, and custom-template changes are preserved unless a genuine overlapping conflict requires a decision.
+- Stable `0.1.0` becomes npm's default `latest` release while prerelease history remains available by exact version.
+
 ## [0.1.0-beta.2] - 2026-08-20
 
 ### Changed
