@@ -4,7 +4,7 @@
   "description": "Prompt-first, evidence-based job application workspace for AI coding agents",
   "type": "module",
   "bin": {
-    "next-job-kit": "./bin/next-job-kit.mjs"
+    "next-job-kit": "bin/next-job-kit.mjs"
   },
   "files": [
     ".agents",
