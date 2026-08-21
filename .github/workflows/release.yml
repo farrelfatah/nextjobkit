@@ -76,8 +76,22 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           version="${GITHUB_REF_NAME#v}"
-          reported="$(npm exec --yes --package="next-job-kit@$version" -- next-job-kit --version)"
-          test "$reported" = "$version"
+          reported=""
+          for attempt in {1..12}; do
+            if reported="$(npm exec --yes --package="next-job-kit@$version" -- next-job-kit --version 2>/dev/null)"; then
+              if [[ "$reported" != "$version" ]]; then
+                echo "Published CLI reported unexpected version: $reported" >&2
+                exit 1
+              fi
+              break
+            fi
+            if [[ "$attempt" -eq 12 ]]; then
+              echo "Published CLI did not become installable after 12 attempts" >&2
+              exit 1
+            fi
+            echo "Waiting for npm install resolver to propagate (attempt $attempt/12)..."
+            sleep 5
+          done
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

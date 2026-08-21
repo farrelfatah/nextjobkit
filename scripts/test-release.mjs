@@ -34,6 +34,9 @@ for (const requirement of [
   'if existing_sha="$(npm view',
   "for attempt in {1..12}",
   "npm metadata did not propagate after 12 attempts",
+  "Published CLI reported unexpected version",
+  "Published CLI did not become installable after 12 attempts",
+  "Waiting for npm install resolver to propagate",
   "sleep 5",
 ]) {
   assert(releaseWorkflow.includes(requirement), `release workflow is missing ${requirement}`);
