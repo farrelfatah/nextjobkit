@@ -12,6 +12,7 @@
     "docs",
     "export",
     "lib",
+    "scaffold",
     "scripts",
     "templates",
     "tests/fixtures",

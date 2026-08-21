@@ -63,7 +63,7 @@ export function createStarter(outputDirectory, options = {}) {
     recursive: true,
   });
 
-  copyProjectFile(sourceRoot, outputRoot, "README.md", "README.md");
+  copyScaffoldFile(sourceRoot, outputRoot, "README.md", "README.md");
   copyProjectFile(sourceRoot, outputRoot, "docs/updating.md", "docs/updating.md");
   copyTemplate(sourceRoot, outputRoot, "workspace-package.json", "package.json");
   copyTemplate(sourceRoot, outputRoot, "public-license.txt", "LICENSE");
@@ -90,6 +90,10 @@ export function createStarter(outputDirectory, options = {}) {
 
 function copyTemplate(sourceRoot, outputRoot, sourceName, destination) {
   copyFile(outputRoot, path.join(sourceRoot, "templates", sourceName), destination);
+}
+
+function copyScaffoldFile(sourceRoot, outputRoot, sourceName, destination) {
+  copyFile(outputRoot, path.join(sourceRoot, "scaffold", sourceName), destination);
 }
 
 function copyProjectFile(sourceRoot, outputRoot, sourceName, destination) {

@@ -254,7 +254,7 @@ CLAUDE.md -> AGENTS.md
 .claude/skills -> ../.agents/skills
 ```
 
-Do not maintain copied Claude-specific versions. On Windows, enable Developer Mode and Git symbolic-link support before cloning.
+Do not maintain copied Claude-specific versions. On Windows, enable Developer Mode before initializing a workspace. Contributors cloning the source should also enable Git symbolic-link support.
 
 ## Commands for Agents and Contributors
 

@@ -2,6 +2,13 @@
 
 Notable changes to Next Job Kit are documented here. Release notes describe user-visible behavior; executable migration logic lives in the package.
 
+## [Unreleased]
+
+### Changed
+
+- Newly created workspaces receive a post-install README focused on personalization, career workflows, safe updates, and optional private backup; the public package README retains installation and contributor guidance.
+- Windows setup guidance now distinguishes workspace initialization from cloning the source repository.
+
 ## [0.1.0] - 2026-08-20
 
 ### Added
