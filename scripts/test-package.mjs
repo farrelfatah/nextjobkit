@@ -23,11 +23,25 @@ try {
   for (const key of ["name", "version", "bin", "publishConfig"]) {
     assert(!Object.hasOwn(workspacePackage, key), `generated workspace must not contain ${key}`);
   }
+  const workspaceReadme = readFileSync(path.join(workspace, "README.md"), "utf8");
+  const scaffoldReadme = readFileSync(path.join(repoRoot, "scaffold/README.md"), "utf8");
+  const packageReadme = readFileSync(path.join(repoRoot, "README.md"), "utf8");
   assert(
-    readFileSync(path.join(workspace, "README.md"), "utf8") ===
-      readFileSync(path.join(repoRoot, "README.md"), "utf8"),
-    "generated workspace README must match the canonical root README",
+    workspaceReadme === scaffoldReadme,
+    "generated workspace README must match the post-install scaffold README",
   );
+  assert(workspaceReadme !== packageReadme, "workspace and public package READMEs must remain distinct");
+  for (const required of [
+    "Next Job Kit is already installed here",
+    "setup-resume-workspace",
+    "Update Next Job Kit Safely",
+    "Optional Private Backup",
+  ]) {
+    assert(workspaceReadme.includes(required), `workspace README is missing ${required}`);
+  }
+  for (const forbidden of ["next-job-kit@latest init", "git clone", "Contributors working on Next Job Kit"]) {
+    assert(!workspaceReadme.includes(forbidden), `workspace README contains pre-install guidance: ${forbidden}`);
+  }
 
   const cache = path.join(temporaryRoot, "npm-cache");
   const packed = JSON.parse(
@@ -44,7 +58,14 @@ try {
   for (const forbiddenRoot of ["profile/", "master/", "applications/", "tailored/", "cover-letters/", "archive/", ".next-job-kit/"]) {
     assert(!paths.some((entry) => entry.startsWith(forbiddenRoot)), `npm package leaks ${forbiddenRoot}`);
   }
-  for (const required of ["bin/next-job-kit.mjs", "AGENTS.md", "README.md", "CHANGELOG.md", "templates/workspace-package.json"]) {
+  for (const required of [
+    "bin/next-job-kit.mjs",
+    "AGENTS.md",
+    "README.md",
+    "CHANGELOG.md",
+    "scaffold/README.md",
+    "templates/workspace-package.json",
+  ]) {
     assert(paths.includes(required), `npm package is missing ${required}`);
   }
 
@@ -77,6 +98,10 @@ try {
   const packedWorkspace = path.join(temporaryRoot, "packed-workspace");
   runInstalledCli(installedCli, ["init", packedWorkspace], { stdio: "pipe" });
   assert(exists(path.join(packedWorkspace, ".next-job-kit/manifest.json")), "packed CLI did not initialize state");
+  assert(
+    readFileSync(path.join(packedWorkspace, "README.md"), "utf8") === scaffoldReadme,
+    "packed CLI did not install the post-install workspace README",
+  );
 
   console.log(`Package contract valid: ${packed.entryCount} allowlisted files, no candidate workspace data`);
 } finally {
