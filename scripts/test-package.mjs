@@ -15,7 +15,7 @@ try {
   assert(packageJson.private !== true, "maintainer package must be publishable");
   assert(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version), "version must be semver");
   assert(packageJson.bin?.["next-job-kit"] === "bin/next-job-kit.mjs", "CLI bin is missing");
-  assert((statSync(path.join(repoRoot, "bin/next-job-kit.mjs")).mode & 0o111) !== 0, "CLI is not executable");
+  assert(cliIsExecutable(), "CLI is not executable");
 
   const workspace = createStarter(path.join(temporaryRoot, "workspace"), { sourceRoot: repoRoot });
   const workspacePackage = JSON.parse(readFileSync(path.join(workspace, "package.json"), "utf8"));
@@ -78,8 +78,7 @@ try {
 
   const cache = path.join(temporaryRoot, "npm-cache");
   const packed = JSON.parse(
-    execFileSync(
-      "npm",
+    runNpm(
       ["--cache", cache, "pack", "--json", "--pack-destination", temporaryRoot],
       {
       cwd: repoRoot,
@@ -113,8 +112,7 @@ try {
   }
 
   const installRoot = path.join(temporaryRoot, "installed-package");
-  execFileSync(
-    "npm",
+  runNpm(
     [
       "--cache",
       cache,
@@ -149,6 +147,29 @@ try {
   console.log(`Package contract valid: ${packed.entryCount} allowlisted files, no candidate workspace data`);
 } finally {
   rmSync(temporaryRoot, { recursive: true, force: true });
+}
+
+// npm is a .cmd shim on Windows, which execFileSync cannot launch without a
+// shell; under `npm test`, npm_execpath points at npm's own JavaScript entry.
+function runNpm(args, options) {
+  const npmCli = process.env.npm_execpath;
+  if (npmCli && npmCli.endsWith(".js")) {
+    return execFileSync(process.execPath, [npmCli, ...args], options);
+  }
+  return execFileSync("npm", args, { ...options, shell: process.platform === "win32" });
+}
+
+// Windows file systems have no executable bit, so check the mode Git records
+// for the published file there; elsewhere check the checkout itself.
+function cliIsExecutable() {
+  if (process.platform === "win32") {
+    const entry = execFileSync("git", ["ls-files", "-s", "bin/next-job-kit.mjs"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    });
+    return entry.startsWith("100755 ");
+  }
+  return (statSync(path.join(repoRoot, "bin/next-job-kit.mjs")).mode & 0o111) !== 0;
 }
 
 function assert(condition, message) {
