@@ -19,6 +19,8 @@ Check every claim for:
 - Clear action, artifact, method, and outcome.
 - Interview defensibility.
 
+When the agent can delegate to an independent read-only reviewer, such as the Claude Code `claim-auditor` subagent, have it check the claims and reconcile its findings with your own; otherwise check them yourself.
+
 Flag unsupported claims; do not repair them by inventing evidence. Do not require a number in every bullet. Cite the supporting evidence entry or state exactly what evidence is missing.
 
 Classify findings:
@@ -63,7 +65,7 @@ Then:
 
 1. Confirm Chrome/Skia produced the PDF.
 2. Extract text and verify expected sections.
-3. Render every page to an image.
+3. Render every page to an image with `npm run render:pdf -- <resume-pdf-path>`, then open each image.
 4. Inspect every page for clipping, overlap, illegible glyphs, orphaned headings, awkward block splits, and unintended blank space.
 5. Confirm A4 sizing unless the configured template says otherwise.
 

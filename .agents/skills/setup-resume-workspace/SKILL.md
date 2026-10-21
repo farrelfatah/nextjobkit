@@ -1,6 +1,6 @@
 ---
 name: setup-resume-workspace
-description: Initialize or reconfigure a Next Job Kit workspace from the single profile/candidate.md interface. Use when a user has cloned the repository, needs to personalize canonical paths and career preferences, or wants to repair missing workspace files without overwriting existing resume content.
+description: Initialize or reconfigure a Next Job Kit workspace from the single profile/candidate.md interface. Use when a user has just created a workspace with the next-job-kit CLI (or cloned the repository), needs to personalize canonical paths and career preferences, or wants to repair missing workspace files without overwriting existing resume content.
 ---
 
 # Set Up Resume Workspace

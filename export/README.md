@@ -20,6 +20,7 @@ npm run export:resume -- path/to/tailored-resume.md --pdf
 npm run preview:resume
 npm run validate:template
 npm run validate:pdf -- path/to/resume.pdf
+npm run render:pdf -- path/to/resume.pdf
 ```
 
 Without an input path, preview and export resolve the configured master resume.
@@ -29,7 +30,7 @@ Without an input path, preview and export resolve the configured master resume.
 PDF export chooses a renderer in this order:
 
 1. `NEXT_JOB_KIT_CHROME_PATH`, when explicitly set.
-2. The newest Playwright Chrome Headless Shell found in the local cache.
+2. The newest Playwright Chrome Headless Shell found in `PLAYWRIGHT_BROWSERS_PATH` or the default Playwright cache.
 3. Installed Google Chrome, Chromium, or Microsoft Edge.
 
 Every export uses a disposable browser profile plus headless, first-run, and crash-reporter suppression flags. The temporary profile is removed afterward.
@@ -38,4 +39,6 @@ Agents running in a browser sandbox may need permission to launch Chrome. Reques
 
 ## Final QA
 
-Structural validation confirms A4 sizing, Chrome/Skia production, a maximum of two pages, extractable text, and expected sections. It does not prove the layout is good. Render and inspect every page before delivering a PDF.
+Structural validation confirms A4 sizing, Chrome/Skia production, a maximum of two pages, extractable text, and expected sections. It does not prove the layout is good. Render every page with `npm run render:pdf` and inspect each image before delivering a PDF. Page images go to a temporary directory unless you pass `--out=<directory>`.
+
+Validation and page rendering use Poppler (`pdfinfo`, `pdftotext`, `pdftoppm`). `npm run doctor` reports whether Poppler and a browser are installed, with platform-specific install guidance.

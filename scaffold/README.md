@@ -44,7 +44,9 @@ A useful prompt usually names:
 4. Facts or boundaries to preserve.
 5. The result you expect to receive.
 
-You can speak naturally; skill names are optional. “Prepare” authorizes artifact creation, not application submission, external messaging, account creation, or publishing.
+You can speak naturally; skill names are optional. In Claude Code you can also type a skill as a slash command, such as `/analyze-job-fit`. “Prepare” authorizes artifact creation, not application submission, external messaging, account creation, or publishing.
+
+[`docs/prompts.md`](docs/prompts.md) has copy-ready prompts for every stage. The sections below cover the most common ones.
 
 ## Common Workflows
 
@@ -135,9 +137,10 @@ npx next-job-kit@latest update .
 npm run doctor
 npm run export:resume -- <resume-markdown-path> --pdf
 npm run validate:pdf -- <resume-pdf-path>
+npm run render:pdf -- <resume-pdf-path>
 ```
 
-Regular users are not expected to operate the terminal. `npm run doctor` is an optional initialization, update, and troubleshooting check; `npm test` is for contributors and CI.
+Regular users are not expected to operate the terminal. `npm run doctor` checks Node.js, a Chrome-family browser, and Poppler (needed for PDF checks and page previews), then the workspace configuration and agent compatibility, and explains how to install anything missing.
 
 ## Optional Private Backup
 
@@ -157,3 +160,11 @@ CLAUDE.md -> AGENTS.md
 ```
 
 If these links are missing on Windows, enable Developer Mode, then ask the agent to repair and validate compatibility.
+
+Claude Code also uses three optional guardrail layers in `.claude/`:
+
+- `settings.json` pre-approves diagnostic and export commands, blocks reading `.env` files, makes `git push` ask first, and wires up the hooks.
+- `hooks/` asks before edits to the locked built-in template, `.next-job-kit/`, or archived submissions; re-validates the workspace after `profile/candidate.md` changes; and reports setup problems when a session starts.
+- `agents/claim-auditor.md` is a read-only subagent that checks claims against your evidence during audits.
+
+Put personal Claude Code permissions in `.claude/settings.local.json`. That file is ignored by Git and never touched by updates. Codex ignores these files; the same rules still apply through `AGENTS.md`.

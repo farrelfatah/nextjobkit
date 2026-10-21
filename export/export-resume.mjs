@@ -5,14 +5,14 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  readdirSync,
   rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { findChrome } from "./find-tools.mjs";
 import { loadWorkspaceConfig } from "./workspace-config.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -272,86 +272,4 @@ function indent(value, spaces) {
 
 function relative(value) {
   return path.relative(repoRoot, value);
-}
-
-function findChrome() {
-  const override = process.env.NEXT_JOB_KIT_CHROME_PATH;
-  if (override && existsSync(override)) {
-    return { path: override, kind: "NEXT_JOB_KIT_CHROME_PATH override" };
-  }
-
-  const headlessShell = findHeadlessShell();
-  if (headlessShell) {
-    return { path: headlessShell, kind: "Playwright Chrome Headless Shell" };
-  }
-
-  const candidates = process.platform === "darwin"
-    ? [
-        ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "Google Chrome"],
-        ["/Applications/Chromium.app/Contents/MacOS/Chromium", "Chromium"],
-        ["/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge", "Microsoft Edge"],
-      ]
-    : process.platform === "win32"
-      ? [
-          [path.join(process.env.PROGRAMFILES || "", "Google/Chrome/Application/chrome.exe"), "Google Chrome"],
-          [path.join(process.env.PROGRAMFILES || "", "Microsoft/Edge/Application/msedge.exe"), "Microsoft Edge"],
-        ]
-      : [
-          ["/usr/bin/google-chrome", "Google Chrome"],
-          ["/usr/bin/chromium", "Chromium"],
-          ["/usr/bin/chromium-browser", "Chromium"],
-          ["/usr/bin/microsoft-edge", "Microsoft Edge"],
-        ];
-
-  const installed = candidates.find(([candidate]) => candidate && existsSync(candidate));
-  return installed ? { path: installed[0], kind: installed[1] } : null;
-}
-
-function findHeadlessShell() {
-  const cacheRoot = process.platform === "darwin"
-    ? path.join(homedir(), "Library/Caches/ms-playwright")
-    : process.platform === "win32"
-      ? path.join(process.env.LOCALAPPDATA || "", "ms-playwright")
-      : path.join(homedir(), ".cache/ms-playwright");
-
-  if (!cacheRoot || !existsSync(cacheRoot)) {
-    return null;
-  }
-
-  const releases = readdirSync(cacheRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith("chromium_headless_shell-"))
-    .map((entry) => entry.name)
-    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
-
-  const executableName = process.platform === "win32" ? "chrome-headless-shell.exe" : "chrome-headless-shell";
-
-  for (const release of releases) {
-    const executable = findFile(path.join(cacheRoot, release), executableName, 3);
-    if (executable) {
-      return executable;
-    }
-  }
-
-  return null;
-}
-
-function findFile(directory, filename, depth) {
-  if (depth < 0 || !existsSync(directory)) {
-    return null;
-  }
-
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const candidate = path.join(directory, entry.name);
-    if (entry.isFile() && entry.name === filename) {
-      return candidate;
-    }
-    if (entry.isDirectory()) {
-      const nested = findFile(candidate, filename, depth - 1);
-      if (nested) {
-        return nested;
-      }
-    }
-  }
-
-  return null;
 }

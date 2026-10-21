@@ -3,6 +3,7 @@ import {
   existsSync,
   lstatSync,
   readlinkSync,
+  readFileSync,
   readdirSync,
   realpathSync,
 } from "node:fs";
@@ -28,6 +29,8 @@ if (existsSync(canonicalSkillsRoot) && existsSync(claudeSkillsRoot)) {
     );
   }
 }
+
+validateClaudeSettings();
 
 if (failures.length > 0) {
   console.error(`Agent compatibility validation failed:\n- ${failures.join("\n- ")}`);
@@ -75,4 +78,32 @@ function listSkills(skillsRoot) {
     )
     .map((entry) => entry.name)
     .sort();
+}
+
+// Claude Code settings are optional, but when present they must parse and every
+// hook must point at a script that exists, or Claude Code reports hook errors.
+function validateClaudeSettings() {
+  const settingsPath = path.join(repoRoot, ".claude/settings.json");
+  if (!existsSync(settingsPath)) {
+    return;
+  }
+
+  let settings;
+  try {
+    settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+  } catch (error) {
+    failures.push(`.claude/settings.json: invalid JSON (${error.message})`);
+    return;
+  }
+
+  for (const groups of Object.values(settings.hooks || {})) {
+    for (const group of groups) {
+      for (const hook of group.hooks || []) {
+        const script = hook.command?.match(/\$CLAUDE_PROJECT_DIR\/([^"\s]+)/)?.[1];
+        if (script && !existsSync(path.join(repoRoot, script))) {
+          failures.push(`.claude/settings.json: hook script not found: ${script}`);
+        }
+      }
+    }
+  }
 }

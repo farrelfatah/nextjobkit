@@ -157,7 +157,7 @@ Before calling a PDF final:
 
 1. Run `npm run doctor` and the relevant PDF validation.
 2. Confirm Chrome/Skia, A4 sizing, no more than two pages, extractable text, and expected sections.
-3. Render every page to an image and inspect it.
+3. Render every page to an image with `npm run render:pdf -- <resume-pdf-path>` and inspect each image.
 4. Reject clipping, overlap, unreadable glyphs, orphaned headings, awkward block splits, and accidental blank pages.
 5. Fix recurring pagination in shared template CSS only when a deliberate template change has been approved. Fix role-specific length in the Markdown.
 
@@ -167,9 +167,10 @@ Before calling a PDF final:
 npm run doctor
 npm run export:resume -- <resume-markdown-path> --pdf
 npm run validate:pdf -- <resume-pdf-path>
+npm run render:pdf -- <resume-pdf-path>
 ```
 
-Users are not expected to run repository tests routinely. `npm run doctor` is an optional initialization, update, and troubleshooting check for workspace configuration and agent compatibility.
+Users are not expected to run repository tests routinely. `npm run doctor` is an optional initialization, update, and troubleshooting check for prerequisites (Node.js, a Chrome-family browser, Poppler), workspace configuration, and agent compatibility. Missing PDF tools are warnings: Markdown work continues, but do not call a PDF final until they are installed.
 
 ## Distribution and Updates
 
@@ -204,6 +205,16 @@ npm test
 ## Agent Compatibility
 
 `AGENTS.md` and `.agents/skills/` are canonical. `CLAUDE.md` must remain a symbolic link to `AGENTS.md`, and `.claude/skills` must remain a symbolic link to `../.agents/skills`. Never maintain copied Claude-specific versions of these sources.
+
+First-party skills use only the open Agent Skills frontmatter keys so they load in every supported agent. User-created skills may add Claude Code keys such as `argument-hint` or `disable-model-invocation`, and may omit `agents/openai.yaml`.
+
+Claude Code also reads optional enforcement layers that never replace this contract:
+
+- `.claude/settings.json`: pre-approved diagnostic and export commands, secret-file read denials, and hooks. Personal permissions belong in the ignored `.claude/settings.local.json`.
+- `.claude/hooks/`: asks before edits to locked built-in template files, `.next-job-kit/`, or archived artifacts; validates the workspace after `profile/candidate.md` changes; reports setup problems at session start.
+- `.claude/agents/claim-auditor.md`: a read-only subagent for an independent evidence check during audits.
+
+Every rule must still hold in an agent that ignores these files.
 
 ## Privacy and Safety
 

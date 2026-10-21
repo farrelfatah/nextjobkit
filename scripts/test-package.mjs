@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -43,6 +43,34 @@ try {
     assert(!workspaceReadme.includes(forbidden), `workspace README contains pre-install guidance: ${forbidden}`);
   }
 
+  for (const required of [
+    ".claude/settings.json",
+    ".claude/agents/claim-auditor.md",
+    ".claude/hooks/guard-protected-files.mjs",
+    "docs/prompts.md",
+    "scripts/render-pdf-pages.mjs",
+  ]) {
+    assert(exists(path.join(workspace, required)), `generated workspace is missing ${required}`);
+  }
+  const claudeSettings = JSON.parse(readFileSync(path.join(workspace, ".claude/settings.json"), "utf8"));
+  assert(
+    claudeSettings.permissions?.ask?.includes("Bash(git push *)"),
+    "workspace Claude settings must ask before git push",
+  );
+  const guard = spawnSync(process.execPath, [".claude/hooks/guard-protected-files.mjs"], {
+    cwd: workspace,
+    encoding: "utf8",
+    input: JSON.stringify({
+      tool_name: "Edit",
+      cwd: workspace,
+      tool_input: { file_path: path.join(workspace, "export/resume.css") },
+    }),
+  });
+  assert(
+    JSON.parse(guard.stdout || "{}").hookSpecificOutput?.permissionDecision === "ask",
+    "guard hook must ask before editing a locked built-in template file",
+  );
+
   const cache = path.join(temporaryRoot, "npm-cache");
   const packed = JSON.parse(
     execFileSync(
@@ -65,6 +93,15 @@ try {
     "CHANGELOG.md",
     "scaffold/README.md",
     "templates/workspace-package.json",
+    "templates/claude-settings.json",
+    ".claude/agents/claim-auditor.md",
+    ".claude/hooks/guard-protected-files.mjs",
+    ".claude/hooks/validate-profile.mjs",
+    ".claude/hooks/session-check.mjs",
+    "export/find-tools.mjs",
+    "scripts/check-prerequisites.mjs",
+    "scripts/render-pdf-pages.mjs",
+    "docs/prompts.md",
   ]) {
     assert(paths.includes(required), `npm package is missing ${required}`);
   }

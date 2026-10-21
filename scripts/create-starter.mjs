@@ -15,6 +15,8 @@ import { initializeWorkspaceState } from "../lib/workspace-state.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const WORKSPACE_SCRIPTS = [
+  "check-prerequisites.mjs",
+  "render-pdf-pages.mjs",
   "validate-agent-compat.mjs",
   "validate-fixtures.mjs",
   "validate-pdf.mjs",
@@ -57,6 +59,12 @@ export function createStarter(outputDirectory, options = {}) {
   mkdirSync(path.join(outputRoot, ".claude"), { recursive: true });
   createSymlink(outputRoot, "AGENTS.md", "CLAUDE.md", "file");
   createSymlink(outputRoot, "../.agents/skills", ".claude/skills", "dir");
+  for (const relativePath of [".claude/agents", ".claude/hooks"]) {
+    cpSync(path.join(sourceRoot, relativePath), path.join(outputRoot, relativePath), {
+      recursive: true,
+    });
+  }
+  copyTemplate(sourceRoot, outputRoot, "claude-settings.json", ".claude/settings.json");
 
   mkdirSync(path.join(outputRoot, "tests"), { recursive: true });
   cpSync(path.join(sourceRoot, "tests/fixtures"), path.join(outputRoot, "tests/fixtures"), {
@@ -65,6 +73,7 @@ export function createStarter(outputDirectory, options = {}) {
 
   copyScaffoldFile(sourceRoot, outputRoot, "README.md", "README.md");
   copyProjectFile(sourceRoot, outputRoot, "docs/updating.md", "docs/updating.md");
+  copyProjectFile(sourceRoot, outputRoot, "docs/prompts.md", "docs/prompts.md");
   copyTemplate(sourceRoot, outputRoot, "workspace-package.json", "package.json");
   copyTemplate(sourceRoot, outputRoot, "public-license.txt", "LICENSE");
   copyTemplate(sourceRoot, outputRoot, "public-gitignore.txt", ".gitignore");
