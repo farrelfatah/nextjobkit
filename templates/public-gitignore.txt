@@ -5,3 +5,4 @@ npm-debug.log*
 .next-job-kit/backups/
 .next-job-kit/pending/
 .next-job-kit/update.lock
+.claude/settings.local.json

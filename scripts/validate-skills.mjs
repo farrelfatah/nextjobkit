@@ -15,6 +15,26 @@ const firstPartySkills = [
   "tailor-resume",
   "write-cover-letter",
 ];
+// The open Agent Skills standard. First-party skills stay within it so they load
+// in Codex, Claude Code, claude.ai uploads, and the Skills API alike.
+const STANDARD_KEYS = ["name", "description", "license", "compatibility", "metadata", "allowed-tools"];
+// Claude Code extensions that user-created skills may use; other agents ignore them.
+const CLAUDE_CODE_KEYS = [
+  "when_to_use",
+  "argument-hint",
+  "arguments",
+  "disable-model-invocation",
+  "user-invocable",
+  "disallowed-tools",
+  "model",
+  "effort",
+  "context",
+  "agent",
+  "background",
+  "hooks",
+  "paths",
+  "shell",
+];
 const skillNames = readdirSync(skillsRoot, { withFileTypes: true })
   .filter(
     (entry) =>
@@ -36,7 +56,9 @@ for (const skillName of skillNames) {
   const source = readFileSync(skillPath, "utf8");
   const frontmatter = parseFrontmatter(source, skillName);
 
-  if (frontmatter.name !== skillName) {
+  const isFirstParty = firstPartySkills.includes(skillName);
+
+  if (frontmatter.name !== skillName && (isFirstParty || frontmatter.name !== undefined)) {
     failures.push(`${skillName}: frontmatter name must match its folder`);
   }
 
@@ -48,15 +70,18 @@ for (const skillName of skillNames) {
     failures.push(`${skillName}: name must use lowercase kebab-case`);
   }
 
-  const extraKeys = Object.keys(frontmatter).filter(
-    (key) => !["name", "description", "license", "compatibility", "metadata", "allowed-tools"].includes(key),
-  );
+  const allowedKeys = isFirstParty ? STANDARD_KEYS : [...STANDARD_KEYS, ...CLAUDE_CODE_KEYS];
+  const extraKeys = Object.keys(frontmatter).filter((key) => !allowedKeys.includes(key));
   if (extraKeys.length > 0) {
     failures.push(`${skillName}: unsupported frontmatter keys: ${extraKeys.join(", ")}`);
   }
 
+  // Codex display metadata is required for first-party skills and optional for
+  // user-created skills, which may be written by any agent.
   if (!existsSync(metadataPath)) {
-    failures.push(`${skillName}: missing agents/openai.yaml`);
+    if (isFirstParty) {
+      failures.push(`${skillName}: missing agents/openai.yaml`);
+    }
     continue;
   }
 
@@ -89,7 +114,8 @@ console.log(
 );
 
 function parseFrontmatter(source, skillName) {
-  const match = source.match(/^---\n([\s\S]*?)\n---\n/);
+  // Git for Windows may check files out with CRLF line endings.
+  const match = source.replace(/\r\n/g, "\n").match(/^---\n([\s\S]*?)\n---\n/);
 
   if (!match) {
     failures.push(`${skillName}: missing YAML frontmatter`);
@@ -97,8 +123,15 @@ function parseFrontmatter(source, skillName) {
   }
 
   const values = {};
+  let previousKey = null;
   for (const line of match[1].split("\n")) {
     if (!line.trim() || line.trimStart().startsWith("#")) {
+      continue;
+    }
+    // Indented lines continue a block scalar or nested mapping, such as
+    // `description: >` or `metadata:`.
+    if (/^\s/.test(line) && previousKey) {
+      values[previousKey] = `${values[previousKey]} ${line.trim()}`.trim();
       continue;
     }
     const pair = line.match(/^([a-z][a-z0-9_-]*):\s*(.*)$/);
@@ -106,7 +139,8 @@ function parseFrontmatter(source, skillName) {
       failures.push(`${skillName}: invalid flat frontmatter line: ${line}`);
       continue;
     }
-    values[pair[1]] = unquote(pair[2].trim());
+    previousKey = pair[1];
+    values[pair[1]] = unquote(pair[2].trim().replace(/^[>|][+-]?$/, ""));
   }
   return values;
 }

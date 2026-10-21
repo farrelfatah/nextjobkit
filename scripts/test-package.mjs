@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,7 +15,7 @@ try {
   assert(packageJson.private !== true, "maintainer package must be publishable");
   assert(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version), "version must be semver");
   assert(packageJson.bin?.["next-job-kit"] === "bin/next-job-kit.mjs", "CLI bin is missing");
-  assert((statSync(path.join(repoRoot, "bin/next-job-kit.mjs")).mode & 0o111) !== 0, "CLI is not executable");
+  assert(cliIsExecutable(), "CLI is not executable");
 
   const workspace = createStarter(path.join(temporaryRoot, "workspace"), { sourceRoot: repoRoot });
   const workspacePackage = JSON.parse(readFileSync(path.join(workspace, "package.json"), "utf8"));
@@ -43,10 +43,42 @@ try {
     assert(!workspaceReadme.includes(forbidden), `workspace README contains pre-install guidance: ${forbidden}`);
   }
 
+  for (const required of [
+    ".claude/settings.json",
+    ".claude/agents/claim-auditor.md",
+    ".claude/hooks/guard-protected-files.mjs",
+    "docs/prompts.md",
+    "scripts/render-pdf-pages.mjs",
+  ]) {
+    assert(exists(path.join(workspace, required)), `generated workspace is missing ${required}`);
+  }
+  const claudeSettings = JSON.parse(readFileSync(path.join(workspace, ".claude/settings.json"), "utf8"));
+  assert(
+    claudeSettings.permissions?.ask?.includes("Bash(git push *)"),
+    "workspace Claude settings must ask before git push",
+  );
+  // Also reach the workspace through a symlink, as macOS /var -> /private/var does.
+  const linkedWorkspace = path.join(temporaryRoot, "linked-workspace");
+  symlinkSync(workspace, linkedWorkspace, "dir");
+  for (const root of [workspace, linkedWorkspace]) {
+    const guard = spawnSync(process.execPath, [path.join(root, ".claude/hooks/guard-protected-files.mjs")], {
+      cwd: root,
+      encoding: "utf8",
+      input: JSON.stringify({
+        tool_name: "Edit",
+        cwd: root,
+        tool_input: { file_path: path.join(root, "export/resume.css") },
+      }),
+    });
+    assert(
+      JSON.parse(guard.stdout || "{}").hookSpecificOutput?.permissionDecision === "ask",
+      `guard hook must ask before editing a locked built-in template file (${path.basename(root)})`,
+    );
+  }
+
   const cache = path.join(temporaryRoot, "npm-cache");
   const packed = JSON.parse(
-    execFileSync(
-      "npm",
+    runNpm(
       ["--cache", cache, "pack", "--json", "--pack-destination", temporaryRoot],
       {
       cwd: repoRoot,
@@ -65,13 +97,22 @@ try {
     "CHANGELOG.md",
     "scaffold/README.md",
     "templates/workspace-package.json",
+    "templates/claude-settings.json",
+    ".claude/agents/claim-auditor.md",
+    ".claude/hooks/guard-protected-files.mjs",
+    ".claude/hooks/validate-profile.mjs",
+    ".claude/hooks/session-check.mjs",
+    ".claude/hooks/workspace-path.mjs",
+    "export/find-tools.mjs",
+    "scripts/check-prerequisites.mjs",
+    "scripts/render-pdf-pages.mjs",
+    "docs/prompts.md",
   ]) {
     assert(paths.includes(required), `npm package is missing ${required}`);
   }
 
   const installRoot = path.join(temporaryRoot, "installed-package");
-  execFileSync(
-    "npm",
+  runNpm(
     [
       "--cache",
       cache,
@@ -106,6 +147,29 @@ try {
   console.log(`Package contract valid: ${packed.entryCount} allowlisted files, no candidate workspace data`);
 } finally {
   rmSync(temporaryRoot, { recursive: true, force: true });
+}
+
+// npm is a .cmd shim on Windows, which execFileSync cannot launch without a
+// shell; under `npm test`, npm_execpath points at npm's own JavaScript entry.
+function runNpm(args, options) {
+  const npmCli = process.env.npm_execpath;
+  if (npmCli && npmCli.endsWith(".js")) {
+    return execFileSync(process.execPath, [npmCli, ...args], options);
+  }
+  return execFileSync("npm", args, { ...options, shell: process.platform === "win32" });
+}
+
+// Windows file systems have no executable bit, so check the mode Git records
+// for the published file there; elsewhere check the checkout itself.
+function cliIsExecutable() {
+  if (process.platform === "win32") {
+    const entry = execFileSync("git", ["ls-files", "-s", "bin/next-job-kit.mjs"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    });
+    return entry.startsWith("100755 ");
+  }
+  return (statSync(path.join(repoRoot, "bin/next-job-kit.mjs")).mode & 0o111) !== 0;
 }
 
 function assert(condition, message) {

@@ -1,0 +1,3 @@
+# Keep LF everywhere: skill frontmatter parsing and the locked template
+# hashes in export/template-baseline.json depend on exact bytes.
+* text=auto eol=lf

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { constants, accessSync, existsSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { findPopplerTool } from "../export/find-tools.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const inputArg = process.argv[2];
@@ -18,11 +19,11 @@ if (!existsSync(pdfPath)) {
   process.exit(1);
 }
 
-const pdfinfoPath = findExecutable("pdfinfo");
-const pdftotextPath = findExecutable("pdftotext") || findBundledSibling(pdfinfoPath, "pdftotext");
+const pdfinfoPath = findPopplerTool("pdfinfo");
+const pdftotextPath = findPopplerTool("pdftotext");
 
 if (!pdfinfoPath || !pdftotextPath) {
-  console.error("Poppler pdfinfo and pdftotext are required for PDF validation");
+  console.error("Poppler pdfinfo and pdftotext are required for PDF validation. Run npm run doctor for install guidance.");
   process.exit(1);
 }
 
@@ -70,44 +71,4 @@ function run(command, args) {
     process.exit(result.status || 1);
   }
   return result.stdout;
-}
-
-function findExecutable(command) {
-  const extensions = process.platform === "win32" ? [".exe", ".cmd", ".bat", ""] : [""];
-
-  for (const directory of (process.env.PATH || "").split(path.delimiter)) {
-    for (const extension of extensions) {
-      const candidate = path.join(directory, `${command}${extension}`);
-      try {
-        accessSync(candidate, constants.X_OK);
-        return candidate;
-      } catch {
-        // Keep searching.
-      }
-    }
-  }
-
-  return null;
-}
-
-function findBundledSibling(pdfinfoExecutable, command) {
-  if (!pdfinfoExecutable) {
-    return null;
-  }
-
-  const candidates = [
-    path.resolve(path.dirname(pdfinfoExecutable), "../../native/poppler/bin", command),
-    path.resolve(path.dirname(pdfinfoExecutable), "../../native/poppler/poppler/bin", command),
-  ];
-
-  for (const candidate of candidates) {
-    try {
-      accessSync(candidate, constants.X_OK);
-      return candidate;
-    } catch {
-      // Keep searching.
-    }
-  }
-
-  return null;
 }

@@ -4,10 +4,29 @@ Notable changes to Next Job Kit are documented here. Release notes describe user
 
 ## [Unreleased]
 
+### Added
+
+- Claude Code guardrails in new workspaces: `.claude/settings.json` pre-approves diagnostics and export, denies reading `.env` files, and asks before `git push`; hooks ask before edits to locked built-in templates, `.next-job-kit/`, or archived artifacts, re-validate after `profile/candidate.md` changes, and report setup problems at session start.
+- A read-only `claim-auditor` Claude Code subagent for independent evidence checks during audits.
+- `npm run render:pdf` renders every PDF page to an image for visual QA.
+- `npm run doctor` now checks prerequisites (Node.js, a Chrome-family browser, Poppler) and gives platform-specific install guidance; missing PDF tools are warnings.
+- A synthetic example package (job-fit analysis, tailored resume, cover letter) under `docs/examples/`, and a prompt library in `docs/prompts.md`.
+- CI runs on Linux, macOS, and Windows with the minimum supported Node.js and current LTS.
+
 ### Changed
 
+- The README is shorter and leads with an example and an updated Quick Start; the full prompt catalog moved to `docs/prompts.md`.
+- User-created skills may use Claude Code frontmatter keys and no longer require `agents/openai.yaml`. First-party skills stay within the open Agent Skills standard.
+- PDF export finds Playwright's headless shell in `PLAYWRIGHT_BROWSERS_PATH` and under its older `headless_shell` name.
 - Newly created workspaces receive a post-install README focused on personalization, career workflows, safe updates, and optional private backup; the public package README retains installation and contributor guidance.
 - Windows setup guidance now distinguishes workspace initialization from cloning the source repository.
+
+### Fixed
+
+- `npm run doctor` and agent-compatibility checks no longer reject a correct `.claude/skills` symlink on Windows, where link targets use backslashes.
+- Skill validation accepts files checked out with CRLF line endings, and `.gitattributes` keeps clones on LF so locked template hashes match on Windows.
+- Workspace manifests store symlink targets with forward slashes, so updates and state validation agree across platforms.
+- Legacy-clone adoption accepts Windows paths reported in 8.3 short form.
 
 ## [0.1.0] - 2026-08-20
 

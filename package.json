@@ -8,6 +8,8 @@
   },
   "files": [
     ".agents",
+    ".claude/agents",
+    ".claude/hooks",
     "bin",
     "docs",
     "export",
@@ -45,8 +47,10 @@
   "scripts": {
     "export:resume": "node export/export-resume.mjs",
     "preview:resume": "node export/preview-resume.mjs --port 4174",
-    "doctor": "npm run validate:workspace && npm run validate:agent-compat && npm run validate:state",
+    "render:pdf": "node scripts/render-pdf-pages.mjs",
+    "doctor": "npm run validate:prereqs && npm run validate:workspace && npm run validate:agent-compat && npm run validate:state",
     "validate": "npm run validate:workspace && npm run validate:agent-compat && npm run validate:state && npm run validate:skills && npm run validate:template && npm run validate:fixtures",
+    "validate:prereqs": "node scripts/check-prerequisites.mjs",
     "validate:workspace": "node scripts/validate-workspace.mjs",
     "validate:agent-compat": "node scripts/validate-agent-compat.mjs",
     "validate:state": "node scripts/validate-state.mjs",
