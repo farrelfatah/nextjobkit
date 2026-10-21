@@ -57,7 +57,8 @@ function validateSymlink(relativePath, expectedTarget, canonicalPath) {
     return;
   }
 
-  const target = readlinkSync(linkPath);
+  // Windows stores relative symlink targets with backslashes.
+  const target = readlinkSync(linkPath).replaceAll("\\", "/");
   if (target !== expectedTarget) {
     failures.push(`${relativePath}: expected target ${expectedTarget}; found ${target}`);
   }
