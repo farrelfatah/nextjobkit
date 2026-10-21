@@ -4,9 +4,8 @@
 // It never blocks outright; approval in the prompt is the template-change approval.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+import { workspaceRelativePath, workspaceRoot } from "./workspace-path.mjs";
 
 let input;
 try {
@@ -20,11 +19,8 @@ if (!filePath) {
   process.exit(0);
 }
 
-const relativePath = path
-  .relative(workspaceRoot, path.resolve(input.cwd || workspaceRoot, filePath))
-  .split(path.sep)
-  .join("/");
-const reason = protectionReason(relativePath);
+const relativePath = workspaceRelativePath(filePath, input.cwd);
+const reason = relativePath && protectionReason(relativePath);
 
 if (reason) {
   process.stdout.write(
@@ -39,10 +35,6 @@ if (reason) {
 }
 
 function protectionReason(relative) {
-  if (relative.startsWith("../")) {
-    return null;
-  }
-
   if (lockedTemplatePaths().includes(relative)) {
     return `${relative} is a locked built-in template file. Approve only for a deliberate template change; to customize, fork it with next-job-kit template fork instead.`;
   }

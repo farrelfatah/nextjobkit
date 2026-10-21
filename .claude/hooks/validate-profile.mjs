@@ -3,10 +3,8 @@
 // profile/candidate.md changes so a broken profile is caught in the same turn.
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+import { workspaceRelativePath, workspaceRoot } from "./workspace-path.mjs";
 
 let input;
 try {
@@ -20,11 +18,7 @@ if (!filePath) {
   process.exit(0);
 }
 
-const relativePath = path
-  .relative(workspaceRoot, path.resolve(input.cwd || workspaceRoot, filePath))
-  .split(path.sep)
-  .join("/");
-if (relativePath !== "profile/candidate.md") {
+if (workspaceRelativePath(filePath, input.cwd) !== "profile/candidate.md") {
   process.exit(0);
 }
 

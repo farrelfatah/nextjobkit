@@ -114,7 +114,8 @@ console.log(
 );
 
 function parseFrontmatter(source, skillName) {
-  const match = source.match(/^---\n([\s\S]*?)\n---\n/);
+  // Git for Windows may check files out with CRLF line endings.
+  const match = source.replace(/\r\n/g, "\n").match(/^---\n([\s\S]*?)\n---\n/);
 
   if (!match) {
     failures.push(`${skillName}: missing YAML frontmatter`);

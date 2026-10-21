@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -57,19 +57,24 @@ try {
     claudeSettings.permissions?.ask?.includes("Bash(git push *)"),
     "workspace Claude settings must ask before git push",
   );
-  const guard = spawnSync(process.execPath, [".claude/hooks/guard-protected-files.mjs"], {
-    cwd: workspace,
-    encoding: "utf8",
-    input: JSON.stringify({
-      tool_name: "Edit",
-      cwd: workspace,
-      tool_input: { file_path: path.join(workspace, "export/resume.css") },
-    }),
-  });
-  assert(
-    JSON.parse(guard.stdout || "{}").hookSpecificOutput?.permissionDecision === "ask",
-    "guard hook must ask before editing a locked built-in template file",
-  );
+  // Also reach the workspace through a symlink, as macOS /var -> /private/var does.
+  const linkedWorkspace = path.join(temporaryRoot, "linked-workspace");
+  symlinkSync(workspace, linkedWorkspace, "dir");
+  for (const root of [workspace, linkedWorkspace]) {
+    const guard = spawnSync(process.execPath, [path.join(root, ".claude/hooks/guard-protected-files.mjs")], {
+      cwd: root,
+      encoding: "utf8",
+      input: JSON.stringify({
+        tool_name: "Edit",
+        cwd: root,
+        tool_input: { file_path: path.join(root, "export/resume.css") },
+      }),
+    });
+    assert(
+      JSON.parse(guard.stdout || "{}").hookSpecificOutput?.permissionDecision === "ask",
+      `guard hook must ask before editing a locked built-in template file (${path.basename(root)})`,
+    );
+  }
 
   const cache = path.join(temporaryRoot, "npm-cache");
   const packed = JSON.parse(
@@ -98,6 +103,7 @@ try {
     ".claude/hooks/guard-protected-files.mjs",
     ".claude/hooks/validate-profile.mjs",
     ".claude/hooks/session-check.mjs",
+    ".claude/hooks/workspace-path.mjs",
     "export/find-tools.mjs",
     "scripts/check-prerequisites.mjs",
     "scripts/render-pdf-pages.mjs",
