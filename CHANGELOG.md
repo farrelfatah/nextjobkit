@@ -21,6 +21,13 @@ Notable changes to Next Job Kit are documented here. Release notes describe user
 - Newly created workspaces receive a post-install README focused on personalization, career workflows, safe updates, and optional private backup; the public package README retains installation and contributor guidance.
 - Windows setup guidance now distinguishes workspace initialization from cloning the source repository.
 
+### Fixed
+
+- `npm run doctor` and agent-compatibility checks no longer reject a correct `.claude/skills` symlink on Windows, where link targets use backslashes.
+- Skill validation accepts files checked out with CRLF line endings, and `.gitattributes` keeps clones on LF so locked template hashes match on Windows.
+- Workspace manifests store symlink targets with forward slashes, so updates and state validation agree across platforms.
+- Legacy-clone adoption accepts Windows paths reported in 8.3 short form.
+
 ## [0.1.0] - 2026-08-20
 
 ### Added
