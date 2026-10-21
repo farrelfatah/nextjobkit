@@ -3,8 +3,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // Node resolves this module's own path through symlinks (for example macOS
-// /var -> /private/var), so compare against real paths on both sides.
-export const workspaceRoot = realpathSync(
+// /var -> /private/var), so compare against real paths on both sides. The
+// native call also canonicalizes Windows 8.3 short names and drive-letter case.
+export const workspaceRoot = realpathSync.native(
   path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."),
 );
 
@@ -16,7 +17,7 @@ export function workspaceRelativePath(filePath, cwd) {
   while (!existsSync(existing) && path.dirname(existing) !== existing) {
     existing = path.dirname(existing);
   }
-  const real = path.join(realpathSync(existing), path.relative(existing, absolute));
+  const real = path.join(realpathSync.native(existing), path.relative(existing, absolute));
   const relative = path.relative(workspaceRoot, real);
 
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
