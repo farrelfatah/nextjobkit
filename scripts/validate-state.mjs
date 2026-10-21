@@ -41,7 +41,9 @@ if (failures.length === 0) {
       continue;
     }
     if (entry.type === "symlink") {
-      if (!isSymlink(cached) || readlinkSync(cached) !== entry.target) {
+      // Windows stores relative symlink targets with backslashes.
+      const target = isSymlink(cached) ? readlinkSync(cached).replaceAll("\\", "/") : null;
+      if (target !== entry.target.replaceAll("\\", "/")) {
         failures.push(`base cache symlink changed: ${entry.path}`);
       }
     } else {
